@@ -136,3 +136,26 @@ Stress curves (reports/figures/stress_curves.png): monotone, linear when observe
 - Imputer kinds: chained (occ -> prev) +0.004 masked / +0.008 shiftW; ExtraTrees +0.068; LGB+ET average +0.017.
 **Conclusion: residual signal is exhausted on train-distribution rows. c04 remains the champion.**
 The remaining uncertainty is test-only behaviour (spike magnitudes beyond the train range), which labels cannot validate.
+
+## Round 6: dataset forensics + new information sources (all vs c04)
+- **previous_usage does not chain.** Searching for a same-building next-hour row (same month, weekday rolled at midnight)
+  whose prev equals y_i: exact matches 0.5% at +1h vs 0.3-0.7% for the +0h/-1h/+2h/+5h controls (`src/forensics_chain.py`).
+- **ID order is random.** Consecutive ids share a building 8.1% (chance 8.5%), are 1h apart 3.9% (chance 4.2%);
+  corr(prev[n+1], y[n]) = -0.005; c04 residual flat across id deciles (corr -0.004). Rows are i.i.d. samples, so there is
+  no time series to exploit and state-space / AR / sequence methods have no support.
+- **previous_usage is the SAME slot in an earlier period, not the previous hour.** Its hour profile matches energy(h),
+  not energy(h-1) (residential corr 0.97 vs 0.52; the 21:00 step appears at the same hour in both). It behaves like a
+  noisy, slightly lower copy of current usage, which is consistent with the shared 0.35 coefficient.
+- **Spikes are scheduled.** prev spikes sit at 22-23h (test 27-29% of rows, train 8-9%) and 0-4h (test ~9-10%);
+  occupancy spikes at 07-09h (test 18-32%, train 4-7%), never at night. Test has ~3x the train rate in the same cells.
+- **Anomaly-aware slopes** (`src/anomaly.py`): adds d_c = x_c - E[x_c | others] (target-free, out-of-fold E) as extra
+  linear terms. Fitted deviation coefficients: prev -0.028 / -0.025 (vs slope 0.35), occupancy ~0, temperature +0.24
+  for positive anomalies. CV: split +0.0013 masked / +0.0033 shiftW; single +0.0005 / +0.0005 (CI spans 0).
+  -> spike rows respond with the SAME slopes as ordinary variation; c04's linear extrapolation is the right model.
+- Residual predictability, more model classes: CatBoost R2 -0.005, MLP R2 -0.004 (LightGBM / ExtraTrees earlier -0.01..-0.02).
+- Not pursued, with reasons: external data (no date or year, so no join key); delta target y - prev (identical for a
+  linear model, and trees lose on extrapolation); bagging the linear fit (~300 params / 8000 rows; imputer bagging
+  already null); KNN local correction (ExtraTrees, a local method, already has R2 < 0).
+- Edge case: an imputer may predict a slightly out-of-range value (e.g. occupancy < 0). c04 then routes that row
+  to its pattern sub-model (graceful). Public test: 0 rows affected.
+**Ceiling conclusion: c04 remains champion; no information source beyond it was found.**
