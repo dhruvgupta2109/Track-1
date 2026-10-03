@@ -34,7 +34,7 @@ def _mask_aug(F, col, patterns, copies, seed):
 
 
 def fit_imputers(feature_rows, params=IMP_PARAMS, aug_patterns=None, aug_copies=0, cols=IMPUTE,
-                 row_weight=None, n_bags=1, domain=None):
+                 row_weight=None, n_bags=1, domain=None, aug_seed=11):
     """row_weight: optional per-row weights for feature_rows. n_bags>1 -> list of seeded boosters (averaged)."""
     F0 = make_features(feature_rows)
     if domain is not None:  # 0 = train distribution, 1 = test distribution (feature only, no target)
@@ -42,7 +42,7 @@ def fit_imputers(feature_rows, params=IMP_PARAMS, aug_patterns=None, aug_copies=
     w0 = np.ones(len(F0)) if row_weight is None else np.asarray(row_weight, float)
     boosters = {}
     for col in cols:
-        F = F0 if not aug_copies else _mask_aug(F0, col, aug_patterns, aug_copies, seed=11)
+        F = F0 if not aug_copies else _mask_aug(F0, col, aug_patterns, aug_copies, seed=aug_seed)
         w = np.tile(w0, len(F) // len(F0))
         ok = F[col].notna().to_numpy()
         X = F.drop(columns=[col])
