@@ -275,7 +275,7 @@ def forensics(tr, te):
 # ---------------------------------------------------------------- campus insights
 def campus_effects():
     from interpret import effects
-    art = joblib.load(ROOT / "package" / "c04_linear_imputed" / "model.pkl")
+    art = joblib.load(ROOT / "package" / "c09_dev_imputed" / "model.pkl")  # final model (same linear part as c04)
     e = effects(art)
     return e.rename(columns={"per_100_occupants": "+100 occupants", "per_degC_at_28": "+1 °C (at 28 °C)",
                              "per_10_prev": "+10 previous_usage", "weekend_noon": "weekend vs Tue (noon)",
@@ -284,7 +284,7 @@ def campus_effects():
 
 def fig_campus(eff, tr):
     from interpret import hour_profile
-    art = joblib.load(ROOT / "package" / "c04_linear_imputed" / "model.pkl")
+    art = joblib.load(ROOT / "package" / "c09_dev_imputed" / "model.pkl")
     fig, ax = plt.subplots(1, 2, figsize=(14, 3.8))
     t = eff.groupby("type")[["+100 occupants"]].mean().sort_values("+100 occupants")
     ax[0].barh(t.index, t["+100 occupants"], color=C1, height=0.6)
@@ -297,3 +297,43 @@ def fig_campus(eff, tr):
     ax[1].set_xticks(range(0, 24, 2)); ax[1].set_xlabel("hour of day (weekday; occupancy=0, prev=0 reference)")
     ax[1].set_ylabel("modelled schedule component"); ax[1].set_title("Learned daily schedule (time-of-day component only)")
     ax[1].legend(loc="upper left"); fig.tight_layout(); return fig
+
+
+# ---------------------------------------------------------------- test-aware imputation (c05-c09)
+PUBLIC_ORDER = [("c03_linear_v3", "c03 linear, per-pattern sub-models"),
+                ("c04_linear_imputed", "c04 + LightGBM imputers (train+test pooled)"),
+                ("c05_domain_imputed", "c05 + domain flag (impute as test)"),
+                ("c06_domain_ens", "c06 + 3-imputer average"),
+                ("c07_domain_ens_testw2", "c07 + test rows x2"),
+                ("c08_domain_ens_aug5", "c08 + mask augmentation x5"),
+                ("c09_dev_imputed", "c09 + deviation features (FINAL)")]
+
+
+def public_progression():
+    L = ledger()
+    rows = [(n, lab, L[f"LB_{n}"]["public_rmse"]) for n, lab in PUBLIC_ORDER]
+    t = pd.DataFrame(rows, columns=["candidate", "change", "public RMSE"]).set_index("candidate")
+    t["Δ vs previous"] = t["public RMSE"].diff()
+    return t
+
+
+def proxy_table():
+    p = pd.read_csv(ROOT / "experiments" / "proxy_results.csv")
+    pick = {"c04": "c04 pooled single", "c05": "c05 (LB", "c06": "c06 (LB", "c07": "c07 (LB", "c08": "c08 (LB", "c09": "c09 (LB"}
+    L = ledger(); rows = []
+    for k, pat in pick.items():
+        r = p[p.variant.str.startswith(pat)]
+        if len(r):
+            r = r.iloc[-1]; name = [n for n, _ in PUBLIC_ORDER if n.startswith(k)][0]
+            rows.append((k, r.test_proxy, r.natmiss, r.train_proxy, L[f"LB_{name}"]["public_rmse"]))
+    return pd.DataFrame(rows, columns=["candidate", "test-row proxy", "proxy on naturally-incomplete rows", "train-row proxy", "public RMSE"]).set_index("candidate")
+
+
+def fig_proxy_vs_public(t):
+    fig, ax = plt.subplots(figsize=(7.5, 3.4))
+    ax.plot(t["test-row proxy"], t["public RMSE"], color=C1, lw=1.2, marker="o", ms=7, markeredgecolor=SURF, markeredgewidth=1.5)
+    for k, r in t.iterrows():
+        ax.annotate(k, (r["test-row proxy"], r["public RMSE"]), textcoords="offset points", xytext=(6, 4), fontsize=8.5, color=INK2)
+    ax.set_xlabel("label-free proxy: slope-weighted imputation MSE on held-out TEST rows (lower = better)")
+    ax.set_ylabel("public RMSE"); ax.set_title("The label-free proxy ranked every submission in public-score order")
+    fig.tight_layout(); return fig

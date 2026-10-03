@@ -13,19 +13,23 @@ md("""
 **Objective.** Predict `energy_usage` for 12 campus buildings (8 types) from building, time, weather, occupancy and
 `previous_usage`. Official metric: **RMSE** (lower is better).
 
-**Final model (c04).** A structured **linear energy model**; any missing input is first filled by a
-**feature-level LightGBM imputer** that never sees the target. **Public RMSE 3.33681** (c03: 3.36875).
+**Final model (c09).** A structured **linear energy model**; any missing input is first filled by an ensemble of
+**test-aware LightGBM imputers** that never see the target. **Public RMSE 3.20392 (rank 1)**, from 3.36875 (c03)
+and 3.33681 (c04).
 
 **Executive summary.** The test set contains about four times as many extreme (but genuine) occupancy /
 `previous_usage` values as the training set. On labelled training rows, energy keeps responding *linearly* to such
 extremes, so a model that **extrapolates** beats tree models that **saturate** outside the training range.
 Error analysis then showed that dropping a missing feature distorts the slopes of the remaining correlated features;
-imputing the missing input first lets the *same full* linear model be used on every row. Out-of-fold residuals of the
-final model could not be predicted by LightGBM, ExtraTrees, CatBoost or an MLP — the remaining error appears to be noise.
+imputing the missing input first lets the *same full* linear model be used on every row. Because the missing test
+values come from the test distribution (more spikes), imputers that know they are filling **test** rows, trained with
+test-like masking and anomaly ("deviation") features, cut public RMSE a further 0.13. A label-free proxy steered this
+and ranked every submission in public-score order. On rows without missing values the error is at the noise floor:
+out-of-fold residuals could not be predicted by LightGBM, ExtraTrees, CatBoost or an MLP.
 
 *All numbers below are computed in this notebook from the data, the frozen model packages, or the stored experiment
-ledger (`experiments/log.jsonl`, `experiments/oof/`). The deployed inference notebook is separate:
-`package/c04_linear_imputed/prediction_notebook.ipynb`.*
+ledger (`experiments/log.jsonl`, `experiments/oof/`, `experiments/proxy_results.csv`). The deployed inference notebook is
+separate: `package/c09_dev_imputed/prediction_notebook.ipynb`.*
 """)
 code("""
 import sys, warnings
@@ -146,16 +150,43 @@ are excluded inside CV). LightGBM is used **only** to estimate missing inputs �
 """)
 
 md("""
-### Reproducibility: retrain c04 from scratch and match the frozen package
+## 7b · Test-aware imputation (c05 → c09): the second big gain
+Error budget after c04: rows **without** missing values (82% of test) sit at the noise floor (~3.0, section 8);
+rows **with** a missing value (18%) carry the remaining error. A missing *test* value comes from the **test**
+distribution, which has ~4× train's spike rate, but c04's imputers pooled train and test and so under-filled test
+values (held-out test-row occupancy bias −4.7). Steps, all target-free:
+
+- **c05 domain flag:** imputers get a feature `dom` (train 0 / test 1) and predict with `dom=1` → bias −4.7 → −0.4.
+- **c06–c07:** average of 3 imputer settings; test rows weighted ×2 (×3+ overshoots).
+- **c08 mask augmentation ×5:** training copies with test-like co-missingness, so imputers learn to work when
+  several inputs are missing at once (real test rows often are).
+- **c09 deviation features:** each observed input minus its building×hour and building mean (lookup tables built
+  from features). Spikes co-occur across features, so an unusual observed value is evidence about a missing one.
+
+**How we validated without test labels.** Hide *observed* values in held-out public-test rows (with test-like
+co-missingness), re-impute them, and weight each error by that feature's energy slope for the building. Since the
+energy model is linear, this measures the energy error caused by imputation, using **no target values**.
+""")
+code("""
+display(P.public_progression().style.format({"public RMSE": "{:.5f}", "Δ vs previous": "{:+.5f}"}, na_rep="—"))
+pt = P.proxy_table(); display(pt.style.format("{:.3f}"))
+fig = P.fig_proxy_vs_public(pt)
+""")
+md("""
+The proxy ranked all six submissions correctly; its magnitude is less reliable (c09's proxy gain transferred only
+−0.005), so later small steps were treated as within public noise. c09 also improves the *train-like* proxy
+(13.0 → 12.2), so it is not tuned only to the public test distribution.
+
+### Reproducibility: retrain the final model from scratch and match the frozen package
 """)
 code("""
 import importlib, time
 from build_package import predict_inprocess
-c04 = importlib.import_module("candidates.c04_linear_imputed")
-t0 = time.time(); art = c04.fit_artifact(tr)
-fresh = predict_inprocess(art, c04.PREDICT_CODE, te)
-frozen = pd.read_csv("../submissions/c04_linear_imputed.csv").prediction.to_numpy()
-print(f"retrained in {time.time()-t0:.1f}s; max |fresh - frozen submission| = {np.abs(fresh - frozen).max():.2e}")
+c09 = importlib.import_module("candidates.c09_dev_imputed")
+t0 = time.time(); art = c09.fit_artifact(tr)
+fresh = predict_inprocess(art, c09.PREDICT_CODE, te)
+frozen = pd.read_csv("../submissions/c09_dev_imputed.csv").prediction.to_numpy()
+print(f"retrained in {time.time()-t0:.0f}s; max |fresh - frozen submission| = {np.abs(fresh - frozen).max():.2e}")
 """)
 
 md("""
@@ -177,7 +208,7 @@ md("""
 | Train/test density-ratio or spike weighting in the fit | +0.002 to +0.018 | worse |
 | Alternative imputers (ExtraTrees, LGB+ET, chained) | +0.004 to +0.068 | LightGBM imputers best |
 | Train-only imputers (no test features) | +0.005 | worse; no safer on train-like rows |
-| c03/c04 blend, c04 + LightGBM energy blend | ≥ −0.004 test-like, worse shift-weighted & spikes | rejected |
+| c03/c04 blend, c04 + LightGBM energy blend | at most 0.004 better test-like; worse shift-weighted & spikes | rejected |
 | Log target / WLS / ridge α 1 or 10 | worse | additive, homoscedastic-enough, α=3 |
 
 *(Values from `experiments/NOTES.md` / `log.jsonl`.)*
@@ -194,7 +225,7 @@ idt.style.format("{:.1%}")
 """)
 
 md("""
-## 9 · Campus insights (from the fitted c04 model)
+## 9 · Campus insights (from the final model's linear energy equation)
 Coefficients describe **associations** in this dataset, not proven causal effects.
 """)
 code("""
@@ -224,14 +255,18 @@ md("""
   train spikes; beyond that it is a **modelling assumption** (the most defensible one given train evidence).
 - Imputers cannot reconstruct an unpredictable spike in a *missing* feature, so those rows keep a higher error.
 - With no date or year, no external weather or calendar data could be joined.
+- c05–c09 assume the private test resembles the public test (more spikes and missing values than train), as the
+  handbook's "edge cases" wording suggests. If it were train-like instead, c09 is still better than c04 there
+  (train-row proxy 12.2 vs 13.0), so the downside is small.
 - The remaining residual appears unlearnable from the given features; coefficients are associations, not causal effects.
 
-## Why c04?
-✓ best repeated validation on clean, test-like, shift-weighted, spike and non-spike rows (4/4 repeat wins)
-✓ robust to missing values · ✓ extrapolates instead of saturating · ✓ public RMSE 3.36875 → **3.33681**
-✓ out-of-fold residuals contain no learnable signal · ✓ inference in seconds with base-image libraries
+## Why c09?
+✓ linear energy model: extrapolates instead of saturating; residuals on complete rows contain no learnable signal
+✓ full model on every row: missing inputs are imputed, not dropped (c04 beat c03 in 4/4 CV repeats)
+✓ test-aware imputation steered by a label-free proxy that ranked every submission correctly
+✓ public RMSE 3.36875 (c03) → 3.33681 (c04) → **3.20392 (c09, rank 1)** · ✓ inference ~3 s with base-image libraries
 
-**Final model = structured linear energy model + feature-level LightGBM imputation.**
+**Final model = structured linear energy model + test-aware LightGBM imputer ensemble (deviation features).**
 """)
 
 nb = nbformat.v4.new_notebook(cells=cells)

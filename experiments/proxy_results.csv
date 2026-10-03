@@ -1,0 +1,40 @@
+source,variant,test_proxy,natmiss,train_proxy
+natind_a.log,single dev+natind (vs dev 21.40),21.8,30.23,12.557
+natind_b.log,single dev+nat count,21.692,29.568,12.455
+natind_c.log,c09 + natind (vs c09 20.87/27.63),21.171,28.648,12.31
+natind_ref.log,single dev only (ref),21.401,29.049,12.373
+natmiss_c05.log,c05 (LB 3.25549),23.04,30.34,12.691
+natmiss_c06.log,c06 (LB 3.23804),22.65,30.007,12.47
+natmiss_c07.log,c07 (LB 3.23149),22.608,29.878,12.55
+natmiss_c08.log,c08 (LB 3.20937),22.214,28.574,12.557
+natmiss_c09.log,c09 (LB 3.20392),20.866,27.627,12.155
+proxy_A.log,c06 trio w1 (LB 3.238),22.65,,12.47
+proxy_A.log,c07 trio w2 (LB 3.231),22.608,,12.55
+proxy_A.log,trio w3,22.636,,12.639
+proxy_A.log,trio w4,22.68,,12.78
+proxy_B.log,trio w6,22.856,,12.98
+proxy_B.log,trio w10,23.065,,13.365
+proxy_B.log,trio test-only,24.781,,19.662
+proxy_C.log,trio w2 aug x2,22.439,,12.529
+proxy_C.log,trio x3 seeds w2,22.47,,12.515
+proxy_D.log,c04 pooled single (LB 3.337),25.851,,13.005
+proxy_D.log,trio+reg w2,22.611,,12.537
+proxy_D.log,trio+ET w2,23.274,,12.744
+proxy_E.log,trio w2 aug x3,22.325,,12.553
+proxy_F.log,trio w2 aug x5,22.214,,12.557
+proxy_G.log,trio w2 aug x8,22.21,,12.623
+proxy_H.log,9 members w2 aug x5,22.183,,12.568
+proxy_I.log,trio w1 aug x5,22.347,,12.479
+proxy_dev_a.log,single default aug2 (ref),22.648,,12.779
+proxy_dev_a.log,single default aug2 + dev feats,21.985,,12.551
+proxy_dev_b.log,trio w2 aug5 + dev feats (vs c08 22.21),21.287,,12.272
+proxy_dev_c.log,"dev (bldg,hour,dow)",22.337,,13.01
+proxy_dev_c.log,"dev + z (bldg,hour,weekend)",22.181,,12.657
+proxy_dev_d.log,dev profile per domain,22.819,,12.47
+proxy_dev_d.log,"dev (bldg,hour)",21.682,,12.468
+proxy_dev_e.log,"dev (type,hour)",21.912,,12.57
+proxy_dev_e.log,dev (building),21.733,,12.625
+proxy_dev_f.log,"dev (bldg,hour)+(bldg)",21.401,,12.373
+proxy_dev_f.log,"dev (bldg,hour)+(bldg,hour,we)",21.923,,12.476
+proxy_dev_g.log,c09 cfg: trio w2 aug5 dev(bh)+(b),20.866,,12.155
+proxy_dev_h.log,c10 cfg: c08 trio + c09 trio,21.213,,12.175
