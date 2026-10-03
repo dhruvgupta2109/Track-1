@@ -1,0 +1,147 @@
+{
+  "test": {
+    "blend_linear": {
+      "humidity": 0.081361898055923,
+      "occupancy": 11.284211610568917,
+      "previous_usage": 10.511375947074338,
+      "temperature": 3.095404387236015,
+      "total": 24.972353842935192
+    },
+    "blend_residual": {
+      "humidity": 0.0680897213543584,
+      "occupancy": 8.457612194414128,
+      "previous_usage": 9.025167658115297,
+      "temperature": 2.277039012330427,
+      "total": 19.82790858621421
+    },
+    "c11_baseline": {
+      "humidity": 0.06746388309185038,
+      "occupancy": 8.54151100750015,
+      "previous_usage": 8.937938951138936,
+      "temperature": 2.187616203322127,
+      "total": 19.73453004505306
+    },
+    "linear": {
+      "humidity": 0.12516593189668823,
+      "occupancy": 18.651480557864975,
+      "previous_usage": 15.189204080715953,
+      "temperature": 5.752846572232171,
+      "total": 39.718697142709786
+    },
+    "linear_residual": {
+      "humidity": 0.0712324758699029,
+      "occupancy": 9.091365012599145,
+      "previous_usage": 9.669973785824869,
+      "temperature": 2.542537794504681,
+      "total": 21.3751090687986
+    }
+  },
+  "natmiss": {
+    "blend_linear": {
+      "humidity": 0.12662067875827704,
+      "occupancy": 12.244784468614034,
+      "previous_usage": 17.43858215491553,
+      "temperature": 3.6322138168620284,
+      "total": 33.44220111914987
+    },
+    "blend_residual": {
+      "humidity": 0.11407878737495898,
+      "occupancy": 9.225888491876667,
+      "previous_usage": 14.12931105885791,
+      "temperature": 2.933065296887854,
+      "total": 26.40234363499739
+    },
+    "c11_baseline": {
+      "humidity": 0.114572195046063,
+      "occupancy": 9.068276330861414,
+      "previous_usage": 14.3239529901345,
+      "temperature": 2.9194005225860917,
+      "total": 26.42620203862807
+    },
+    "linear": {
+      "humidity": 0.16325769728559908,
+      "occupancy": 18.92490796198987,
+      "previous_usage": 24.692832964167433,
+      "temperature": 5.717547299451952,
+      "total": 49.49854592289485
+    },
+    "linear_residual": {
+      "humidity": 0.1160632835601013,
+      "occupancy": 9.885367379409924,
+      "previous_usage": 14.425779915817435,
+      "temperature": 3.1145484940557724,
+      "total": 27.54175907284323
+    }
+  },
+  "train": {
+    "blend_linear": {
+      "humidity": 0.06885782745593279,
+      "occupancy": 5.141311059138648,
+      "previous_usage": 6.794305435146231,
+      "temperature": 2.235220099957158,
+      "total": 14.239694421697969
+    },
+    "blend_residual": {
+      "humidity": 0.06516481686049451,
+      "occupancy": 3.9880234826770886,
+      "previous_usage": 6.414849073626734,
+      "temperature": 2.009816303343466,
+      "total": 12.477853676507785
+    },
+    "c11_baseline": {
+      "humidity": 0.06413120918166476,
+      "occupancy": 4.031962808836733,
+      "previous_usage": 6.5156604943598175,
+      "temperature": 1.994579056072178,
+      "total": 12.606333568450394
+    },
+    "linear": {
+      "humidity": 0.08270831174660716,
+      "occupancy": 8.381719426847207,
+      "previous_usage": 8.257820294402881,
+      "temperature": 3.063562218585451,
+      "total": 19.78581025158215
+    },
+    "linear_residual": {
+      "humidity": 0.06803242977752946,
+      "occupancy": 4.333560166543269,
+      "previous_usage": 6.679596799602053,
+      "temperature": 2.1211484554955526,
+      "total": 13.202337851418404
+    }
+  },
+  "paired_test": {
+    "linear": {
+      "sum_error_mse_delta": 18.583060404903506,
+      "row_paired_se": 1.1994386027083006,
+      "fold_deltas": {
+        "0": 19.08828165192359,
+        "1": 18.077839157883428
+      }
+    },
+    "linear_residual": {
+      "sum_error_mse_delta": 1.5284114095366466,
+      "row_paired_se": 0.320511626034231,
+      "fold_deltas": {
+        "0": 1.4822913066070003,
+        "1": 1.5745315124662929
+      }
+    },
+    "blend_linear": {
+      "sum_error_mse_delta": 4.869736679506332,
+      "row_paired_se": 0.4659355611969231,
+      "fold_deltas": {
+        "0": 4.854074072434811,
+        "1": 4.885399286577852
+      }
+    },
+    "blend_residual": {
+      "sum_error_mse_delta": 0.08754879789027287,
+      "row_paired_se": 0.15689513114316797,
+      "fold_deltas": {
+        "0": 0.05974547110264804,
+        "1": 0.11535212467789764
+      }
+    }
+  }
+}

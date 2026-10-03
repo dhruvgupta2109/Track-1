@@ -1,0 +1,38 @@
+{
+  "candidate": "c18_private_safe",
+  "statistical_candidate": "c17_mnar_eb",
+  "source_public_rmse": 3.18775,
+  "best_public_candidate": "c16_prev06_occ_selfmask",
+  "best_public_rmse": 3.18618,
+  "byte_identical_source_csv": true,
+  "separate_public_submission": false,
+  "submission_sha256": "05cb6f912cc74abc5285f7fc65cfdd08575666ae86da93ad03dda5a4493490f1",
+  "rows": 3000,
+  "prediction_min": 14.06956515118462,
+  "prediction_max": 131.66438622685675,
+  "model_bytes": 19702570,
+  "mnar_kappa": {
+    "previous_usage": 0.2967938726832853,
+    "occupancy": 0.10051928720414387,
+    "temperature": -0.10594236977127372,
+    "humidity": 0.03376532701084684
+  },
+  "package": "package/c18_private_safe",
+  "branch": "codex/final-model-improvements",
+  "base_commit": "4c23bfe",
+  "regression_tests_passed": 7,
+  "fresh_kernel_scenarios_passed": 5,
+  "clean_environment_exact_match": true,
+  "clean_kernel_interpreter_verified": true,
+  "clean_environment_seconds": [
+    7.7,
+    4.5
+  ],
+  "analysis_code_cells_executed": 15,
+  "full_rebuild_seconds": 40,
+  "full_rebuild_max_prediction_difference": 2.842170943040401e-14,
+  "report_pages": 1,
+  "report_visually_reviewed": true,
+  "portal_execution_tested": false,
+  "new_public_submissions": 0
+}

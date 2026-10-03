@@ -1,0 +1,19 @@
+{
+  "candidate": "c18_private_safe",
+  "source_candidate": "c17_mnar_eb",
+  "source_artifact_sha256": "e1b6580817076bbde3b4e26920a53d5dc180a669b9031d352ec6eaa13765991c",
+  "files": {
+    "model.pkl": "cc3087dac7dbeb28b72afca7d5f80f315f6f55a502c89e45363a8de3e32c39ec",
+    "prediction_notebook.ipynb": "696de1e4905c8971c30e8f1ab254a81d5846aa6d2b0f06ca47983a06de764368",
+    "requirements.txt": "cf90bbee3df2042629cf519c85680eedcdbeeec34a6b0ad936674241ca738d02"
+  },
+  "submission_sha256": "05cb6f912cc74abc5285f7fc65cfdd08575666ae86da93ad03dda5a4493490f1",
+  "prediction_rows": 3000,
+  "fresh_kernel_scenarios": [
+    "platform",
+    "template_default",
+    "stress",
+    "dropcol",
+    "onerow"
+  ]
+}

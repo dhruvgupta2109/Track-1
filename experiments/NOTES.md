@@ -313,3 +313,72 @@ c09 vs c08: proxy -1.34 (both test-like and train-like improve). At 0.03-0.055 p
   occ/prev curvature, temp x humidity, temp x season x building): every group worsens out-of-sample MSE (>= +0.0019).
 - Conclusion: complete rows at the noise floor; imputers calibrated and saturated on the proxy; MNAR handled from
   train. Remaining public differences between principled variants are inside public noise.
+
+## Round 15: independent imputer ideas, input recovery and final delivery (Codex branch)
+
+Branch: `codex/final-model-improvements`, starting from `4c23bfe`; all earlier packages/prediction CSVs preserved.
+No portal actions or new public submissions. The score/model records above remain historical evidence, not fresh private scores.
+
+### A. Extrapolating gap-fillers: rejected
+
+`src/exp47_extrapolating_imputers.py`: fixed building/time/domain ridge means, then LightGBM on feature residuals.
+Compare linear, residual trees, and fixed 50/50 blends against the c11 trio. Same 5 held-out train/test folds as the
+existing proxy; exclude held-out rows from fits and deviation tables. Correctly ordered x5 mask augmentation,
+same trio settings/seeds, no test energy labels in fitting or evaluation. The scoring slopes are from the previously
+frozen c04 fit on labelled train data; the train-feature proxy is not a nested validation of those slopes.
+
+| Variant | Test-feature proxy | Naturally incomplete slice | Train-feature proxy |
+|---|---:|---:|---:|
+| c11 trio reference | 20.8086 | 26.8569 | 12.2480 |
+| Linear | 42.6594 | 51.6153 | 19.5501 |
+| Linear + residual trees | 22.9377 | 28.5963 | 12.7531 |
+| Fixed blend with linear | 26.9431 | 34.3995 | 13.9491 |
+| Fixed blend with residual trees | 21.2568 | 27.2083 | 12.1462 |
+
+Residual blend dMSE +0.4482, paired row-bootstrap 95% interval [+0.2141,+0.6881] on held-out test features.
+The train-domain improvement did not transfer to test-domain feature reconstruction. Retain the existing imputers.
+Full errors: `experiments/extrapolating_imputers_5fold_trio_errors.csv.gz`; the two-fold single-member pilot is also retained.
+
+### B. Train imputers for their effect on energy: uncertain small gain, not promoted
+
+`src/exp49_energy_weighted_imputers.py`: multiply each feature's training weights by its squared per-building energy
+slope, normalized to preserve overall weight. Shared-slope features stay identical. Fixed 50/50 blend is a pre-specified
+diagnostic; no blending weight was fitted. Pair against the exact cached c11 baseline on the same feature values/folds.
+
+| Variant | Test-feature proxy | Naturally incomplete slice | Train-feature proxy |
+|---|---:|---:|---:|
+| Energy-weighted trio | 20.8176 | 26.6898 | 12.2476 |
+| Fixed blend with reference | 20.7342 | 26.7044 | 12.2023 |
+
+Blend dMSE -0.0744, paired SE 0.0527; row-bootstrap 95% interval [-0.1772,+0.0265]. Naturally-incomplete slice:
+dMSE -0.1525, interval [-0.4835,+0.1405]. This possible gain does not justify more model size and complexity.
+Intervals resample rows jointly across feature errors, after scaling contributions to preserve the proxy's sum-of-feature-MSE
+estimand; they condition on fitted folds and do not include model-selection uncertainty. They are not public RMSE intervals.
+Errors: `experiments/energy_weighted_imputers_errors.csv.gz`; uncertainty: `experiments/imputer_trial_uncertainty.json`.
+
+### C. c18_private_safe: preserve c17, recover inputs and isolate failures
+
+`src/exp48_contract_audit.py` identified a recoverable input defect: removing/lowercasing building_type changed c17
+predictions by up to 2.3042 on the first 400 supplied-test rows even when building_id remained known.
+c18 derives known building types from the fixed building map and canonicalizes other recognized types.
+An individual imputer failure leaves only that feature missing, preserving other fills; linear sub-models handle the
+remaining pattern. MNAR shifts require successful complete imputation. If both energy paths fail, return the finite train mean.
+File loading and dependency failures remain outside these prediction fallbacks.
+
+- c18 supplied-test CSV is **byte-identical to c17**, SHA-256 prefix `05cb6f912c`; 3000 rows, sample ID order, finite.
+- c17's existing public RMSE 3.18775 applies to that identical CSV; c18 was not separately submitted. c16 remains best
+  observed public at 3.18618, with partly public-selected offsets. No private-score improvement is claimed.
+- Five fresh-kernel notebook scenarios pass. Seven regression tests cover type recovery, all 16 numeric patterns x
+  12 buildings, empty/absent/malformed inputs, shuffled/chunked/duplicate-index rows and injected failures.
+- Fresh environment created offline from cached platform-pinned libraries plus Jupyter tooling: 7.7 s including startup,
+  exact prediction/ID match. Actual portal execution remains unchecked.
+- `src/train_final.py` independently rebuilds the energy model, all 12 imputer members, five-fold conditional variances
+  and train-only EB calibration from raw files, without fitted experiment outputs. Executed presentation: 40 s rebuild,
+  max prediction difference 2.84e-14; 15 code cells executed, zero errors.
+- `src/build_package.py` now refuses to overwrite existing packages/CSVs and records hashes/source-artifact provenance.
+- README, one-page report, executed presentation, Q&A and checklist now explain c18/c17, c16's public result and assumptions.
+
+Evidence corrections in the final explanation: previous_usage's same-slot interpretation is inferred, not the exact known
+generator; ~3.0 complete-row error supports limited headroom, not proof of a random irreducible floor; the feature proxy
+is approximate for correlated joint missingness and temperature squared; train-domain proxy success does not prove
+private robustness when deployed with the test-domain flag. The c17 MNAR cross-fitted improvement remains uncertain.

@@ -13,9 +13,10 @@ md("""
 **Objective.** Predict `energy_usage` for 12 campus buildings (8 types) from building, time, weather, occupancy and
 `previous_usage`. Official metric: **RMSE** (lower is better).
 
-**Final model (c09).** A structured **linear energy model**; any missing input is first filled by an ensemble of
-**test-aware LightGBM imputers** that never see the target. **Public RMSE 3.20392 (rank 1)**, from 3.36875 (c03)
-and 3.33681 (c04).
+**Final package: c18_private_safe.** It preserves **c17**'s linear energy model, test-aware LightGBM
+gap-fillers and train-estimated missing-value correction, while recovering building types and isolating fallback
+failures. Its supplied-test CSV is byte-identical to **c17 (public RMSE 3.18775)**. **c16 scored 3.18618**, the best
+observed public result; c17 replaces its hand-picked offsets with a fixed rule based on labelled training rows.
 
 **Executive summary.** The test set contains about four times as many extreme (but genuine) occupancy /
 `previous_usage` values as the training set. On labelled training rows, energy keeps responding *linearly* to such
@@ -24,12 +25,14 @@ Error analysis then showed that dropping a missing feature distorts the slopes o
 imputing the missing input first lets the *same full* linear model be used on every row. Because the missing test
 values come from the test distribution (more spikes), imputers that know they are filling **test** rows, trained with
 test-like masking and anomaly ("deviation") features, cut public RMSE a further 0.13. A label-free proxy steered this
-and ranked every submission in public-score order. On rows without missing values the error is at the noise floor:
+and ranked the six c04-c09 submissions in public-score order. Later refinements fixed mask-column ordering, added
+cyclic time and residential schedule steps, and corrected bias on naturally missing rows. On complete rows,
+validation is close to the estimated noise floor:
 out-of-fold residuals could not be predicted by LightGBM, ExtraTrees, CatBoost or an MLP.
 
 *All numbers below are computed in this notebook from the data, the frozen model packages, or the stored experiment
 ledger (`experiments/log.jsonl`, `experiments/oof/`, `experiments/proxy_results.csv`). The deployed inference notebook is
-separate: `package/c09_dev_imputed/prediction_notebook.ipynb`.*
+separate: `package/c18_private_safe/prediction_notebook.ipynb`.*
 """)
 code("""
 import sys, warnings
@@ -49,10 +52,10 @@ and the test set has **≈3× the missing rate** of train, with far more rows mi
 """)
 code("P.overview(tr, te)")
 md("""
-**What is `previous_usage`?** It is *not* the previous hour. Its daily profile lines up with energy at the **same hour**
+**What is `previous_usage`?** The specification calls it the previous period's usage. Its daily profile lines up with energy at the **same hour**
 (e.g. the residential step at 21:00 appears at 21:00 in both), not one hour earlier. It behaves like a reference reading
-for the same slot in an earlier period — a noisy, slightly lower copy of current usage. (Section 8 also shows that rows
-do not chain into a sequence.)
+for the same slot in an earlier period. This is an inference from the profiles, not a recovered generator definition.
+Section 8 shows that rows do not form a recoverable hourly sequence.
 """)
 code("tab, fig = P.prev_semantics(tr, te); tab")
 
@@ -94,7 +97,8 @@ code("fig = P.fig_extrapolation(tr)")
 md("""
 ## 6 · Validation design
 Ordinary CV underestimates test difficulty, because test has more missing values and more spikes. So every model is
-scored three ways on the **same 5-fold × 4-repeat splits** (paired comparisons):
+scored on paired splits in three ways (**5-fold × 4 repeats** for confirmed linear comparisons; the tree baseline
+uses 2 repeats):
 
 | View | What it does |
 |---|---|
@@ -143,10 +147,10 @@ md("""
 Largest c03→c04 change on the test set: occupancy is missing and `previous_usage` is unusually low. c03's inflated slope
 drags the prediction down to 50.0; c04 predicts 62.0, close to the 62.6 typical of that building / hour / day-type.
 
-*Why imputation is sound here:* the energy model is linear in each input, so plugging in an estimate of the missing
-input's conditional mean approximates the conditional-mean energy prediction (exact only if the conditional mean were
-known; the imputer estimates it). The imputers use features only (train + unlabelled test features; validation rows
-are excluded inside CV). LightGBM is used **only** to estimate missing inputs — the energy prediction itself stays linear.
+*Why imputation helps:* the energy equation is linear in occupancy and previous usage. Conditional means are the right
+inputs for those terms; temperature has a small quadratic term, so mean imputation is an approximation there.
+The imputers use features only (train + unlabelled test features; evaluated feature values are held out in the proxy).
+LightGBM estimates missing inputs; the energy model retains its linear response to occupancy and previous usage.
 """)
 
 md("""
@@ -165,7 +169,9 @@ values (held-out test-row occupancy bias −4.7). Steps, all target-free:
 
 **How we validated without test labels.** Hide *observed* values in held-out public-test rows (with test-like
 co-missingness), re-impute them, and weight each error by that feature's energy slope for the building. Since the
-energy model is linear, this measures the energy error caused by imputation, using **no target values**.
+dominant energy terms are linear, this gives a useful imputation-error proxy using **no test targets**. It is not the
+final RMSE: joint missing-feature errors can be correlated, temperature is slightly nonlinear, and genuinely missing
+values cannot be checked directly.
 """)
 code("""
 display(P.public_progression().style.format({"public RMSE": "{:.5f}", "Δ vs previous": "{:+.5f}"}, na_rep="—"))
@@ -173,26 +179,57 @@ pt = P.proxy_table(); display(pt.style.format("{:.3f}"))
 fig = P.fig_proxy_vs_public(pt)
 """)
 md("""
-The proxy ranked all six submissions correctly; its magnitude is less reliable (c09's proxy gain transferred only
-−0.005), so later small steps were treated as within public noise. c09 also improves the *train-like* proxy
-(13.0 → 12.2), so it is not tuned only to the public test distribution.
+The proxy ranked the six c04-c09 submissions correctly; its magnitude is less reliable (c09's gain transferred only
+−0.005). The naturally-incomplete-row slice better reflects hard test rows; neither proxy observes genuinely missing
+values. Later MNAR decisions therefore used naturally missing **labelled training rows**.
 
-### Reproducibility: retrain the final model from scratch and match the frozen package
+## 7c · Final statistical model and private-test package
+**c11:** fix mask-column ordering; add cyclic time to imputers; fit residential day/night steps and stronger shrinkage
+of hour corrections. The next table measures the **energy model on complete rows**, not full c17 pipeline CV.
 """)
 code("""
-import importlib, time
+display(P.final_energy_cv())
+display(P.final_mnar_table().round(3))
+""")
+md("""
+**c17:** estimate missing-feature shifts on naturally missing training rows using out-of-fold energy residuals;
+shrink the four estimates toward zero with empirical Bayes. Apply `kappa × energy slope × conditional SD` when
+an input is missing. Previous usage has the strongest train support (raw kappa 0.418, SE 0.153).
+The correction's cross-fitted MSE change is only −0.078 (SE 0.126) on single-missing training rows, so its benefit
+remains uncertain. Transferring train shifts to private-test rows is an explicit assumption.
+
+**c18:** reuse c17's trained parameters and repair input handling. A known building ID supplies its type when missing
+or malformed. A failed imputer leaves only that feature for the matching linear sub-model; if the energy model fails,
+return the finite training mean. Tests cover all 16 numeric missingness patterns across 12 buildings.
+
+**Selection:** c16 has the best recorded public RMSE, but its offsets were partly chosen by judgement and public scores.
+c17's fixed train-estimated rule avoids selecting offset sizes on public results. c18's CSV is identical to c17;
+its input recovery has no separately measured private-test score.
+
+### Reproducibility: rebuild the complete statistical pipeline from the raw files
+This cell refits the energy model, all 12 imputer members, five-fold conditional variances and train-only MNAR
+calibration. It does not load previous experiment outputs for fitting. Expect a few minutes of CPU work.
+""")
+code("""
+import time
 from build_package import predict_inprocess
-c09 = importlib.import_module("candidates.c09_dev_imputed")
-t0 = time.time(); art = c09.fit_artifact(tr)
-fresh = predict_inprocess(art, c09.PREDICT_CODE, te)
-frozen = pd.read_csv("../submissions/c09_dev_imputed.csv").prediction.to_numpy()
-print(f"retrained in {time.time()-t0:.0f}s; max |fresh - frozen submission| = {np.abs(fresh - frozen).max():.2e}")
+from candidates.c18_private_safe import PREDICT_CODE
+from train_final import rebuild_statistical_model
+t0 = time.time(); art, calibration = rebuild_statistical_model(tr, te)
+fresh = predict_inprocess(art, PREDICT_CODE, te)
+frozen = pd.read_csv("../submissions/c18_private_safe.csv").prediction.to_numpy()
+max_diff = float(np.abs(fresh - frozen).max())
+assert np.allclose(fresh, frozen, rtol=0, atol=1e-8), max_diff
+print(f"full rebuild in {time.time()-t0:.0f}s; max |fresh - frozen| = {max_diff:.2e}")
+display(P.final_summary())
+display(calibration)
 """)
 
 md("""
 ## 8 · Error analysis — is anything left?
 We took c04's **out-of-fold** residuals and asked whether any model can predict them out of sample.
-Result: R² < 0 — every correction makes things worse, and the best correction weight is **0**.
+The models tested had R² < 0. This supports a small remaining signal on the train distribution; it does not prove
+the generator is irreducibly random or that no better method exists.
 """)
 code("""
 r2, shrink = P.residual_predictability()
@@ -235,7 +272,7 @@ fig = P.fig_campus(eff, tr)
 """)
 md("""
 - **Occupancy sensitivity varies about 3×:** each additional 100 occupants is associated with **+13.4** energy units
-  in the lecture hall but only **+4.5–4.7** in residences. Lecture-hall energy is the most occupancy-driven.
+  in the lecture hall but only **+4.4–4.7** in residences. Lecture-hall energy is the most occupancy-driven.
 - **Base load:** science buildings have the largest modelled base load (**≈39–43** at the model's empty, low-history
   03:00 reference, vs **≈16–27** elsewhere). This is *consistent with* energy-intensive fixed loads (interpretation).
 - **Schedules:** residences step **down at 08:00** and **up at 21:00**. These steps were sharp enough that hour-level
@@ -255,18 +292,23 @@ md("""
   train spikes; beyond that it is a **modelling assumption** (the most defensible one given train evidence).
 - Imputers cannot reconstruct an unpredictable spike in a *missing* feature, so those rows keep a higher error.
 - With no date or year, no external weather or calendar data could be joined.
-- c05–c09 assume the private test resembles the public test (more spikes and missing values than train), as the
-  handbook's "edge cases" wording suggests. If it were train-like instead, c09 is still better than c04 there
-  (train-row proxy 12.2 vs 13.0), so the downside is small.
+- Test-aware imputers assume private input relationships resemble the public feature distribution. Good train-domain
+  proxy performance does not guarantee good private-domain performance: inference predicts with the test-domain flag.
+- The MNAR shift assumes the train-estimated mechanism transfers. Its cross-fitted improvement is uncertain; public
+  differences of a few thousandths are insufficient evidence for a private improvement.
 - The remaining residual appears unlearnable from the given features; coefficients are associations, not causal effects.
 
-## Why c09?
-✓ linear energy model: extrapolates instead of saturating; residuals on complete rows contain no learnable signal
-✓ full model on every row: missing inputs are imputed, not dropped (c04 beat c03 in 4/4 CV repeats)
-✓ test-aware imputation steered by a label-free proxy that ranked every submission correctly
-✓ public RMSE 3.36875 (c03) → 3.33681 (c04) → **3.20392 (c09, rank 1)** · ✓ inference ~3 s with base-image libraries
+## 11 · The final choice and the latest experiments
+The linear model preserves the measured response to extreme values. Gap-fillers keep the full observed-feature slopes,
+and the fixed train-only MNAR rule accounts for missing-value bias. The c18 package adds recoverable input handling.
 
-**Final model = structured linear energy model + test-aware LightGBM imputer ensemble (deviation features).**
+Two additional five-fold, target-free checks did not justify replacing c17: extrapolating gap-fillers worsened the
+test-feature proxy (20.81 → 21.26 for a fixed residual blend); a fixed blend with energy-weighted gap-fillers improved
+it slightly (20.81 → 20.73), but its paired 95% interval for MSE change includes zero (−0.177 to +0.027).
+These are proxy values, not leaderboard RMSE. Neither variant was submitted or promoted.
+
+**Use `package/c18_private_safe/` for inference and the one-page PDF for the technical report.** The team still needs
+to upload the artifacts and confirm the portal's actual private execution.
 """)
 
 nb = nbformat.v4.new_notebook(cells=cells)

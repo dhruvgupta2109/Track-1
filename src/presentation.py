@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 import features  # noqa: E402
 from features import make_features, NUMERIC, BUILDING_TYPE  # noqa: E402
+from final_solution import FINAL_CANDIDATE, final_summary  # noqa: E402
 
 # reference palette (light mode): categorical slots 1-3, text + surface tokens
 C1, C2, C3 = "#2a78d6", "#eb6834", "#1baf7a"
@@ -275,7 +276,7 @@ def forensics(tr, te):
 # ---------------------------------------------------------------- campus insights
 def campus_effects():
     from interpret import effects
-    art = joblib.load(ROOT / "package" / "c09_dev_imputed" / "model.pkl")  # final model (same linear part as c04)
+    art = joblib.load(ROOT / "package" / FINAL_CANDIDATE / "model.pkl")
     e = effects(art)
     return e.rename(columns={"per_100_occupants": "+100 occupants", "per_degC_at_28": "+1 °C (at 28 °C)",
                              "per_10_prev": "+10 previous_usage", "weekend_noon": "weekend vs Tue (noon)",
@@ -284,7 +285,7 @@ def campus_effects():
 
 def fig_campus(eff, tr):
     from interpret import hour_profile
-    art = joblib.load(ROOT / "package" / "c09_dev_imputed" / "model.pkl")
+    art = joblib.load(ROOT / "package" / FINAL_CANDIDATE / "model.pkl")
     fig, ax = plt.subplots(1, 2, figsize=(14, 3.8))
     t = eff.groupby("type")[["+100 occupants"]].mean().sort_values("+100 occupants")
     ax[0].barh(t.index, t["+100 occupants"], color=C1, height=0.6)
@@ -306,7 +307,14 @@ PUBLIC_ORDER = [("c03_linear_v3", "c03 linear, per-pattern sub-models"),
                 ("c06_domain_ens", "c06 + 3-imputer average"),
                 ("c07_domain_ens_testw2", "c07 + test rows x2"),
                 ("c08_domain_ens_aug5", "c08 + mask augmentation x5"),
-                ("c09_dev_imputed", "c09 + deviation features (FINAL)")]
+                ("c09_dev_imputed", "c09 + deviation features"),
+                ("c11_v5_cyclic", "c11 mask-order fix, cyclic time, residential steps"),
+                ("c12_v5_cyclic_prevoff", "c12 previous_usage missing offset"),
+                ("c13_avg_c11_007", "c13 teammate blend (rejected)"),
+                ("c14_prevoff085", "c14 larger previous_usage offset"),
+                ("c15_prev_selfmask", "c15 building-scaled previous_usage offset"),
+                ("c16_prev06_occ_selfmask", "c16 + occupancy offset (best observed public)"),
+                ("c17_mnar_eb", "c17 train-estimated, EB-shrunk offsets (final statistical model)")]
 
 
 def public_progression():
@@ -337,3 +345,23 @@ def fig_proxy_vs_public(t):
     ax.set_xlabel("label-free proxy: slope-weighted imputation MSE on held-out TEST rows (lower = better)")
     ax.set_ylabel("public RMSE"); ax.set_title("The label-free proxy ranked every submission in public-score order")
     fig.tight_layout(); return fig
+
+
+def final_energy_cv():
+    """Complete-row energy-model comparison, distinct from final pipeline CV."""
+    tr, _ = load()
+    y = tr.energy_usage.to_numpy()
+    complete = tr[NUMERIC].notna().all(axis=1).to_numpy()
+    rows = []
+    for name, label in [("e_V4_5x4", "V4 (c04-c09)"), ("e_V5_5x4", "V5 (c11-c18)")]:
+        oof = np.load(ROOT / "experiments/oof" / f"{name}.npz")["oof"]
+        rmse = np.sqrt(np.mean((oof[:, complete] - y[complete]) ** 2, axis=1))
+        rows.append({"model": label, "complete-row RMSE": float(np.sqrt(np.mean(rmse ** 2))),
+                     "repeat RMSEs": [float(v) for v in rmse], "rows": int(complete.sum())})
+    return pd.DataFrame(rows).set_index("model")
+
+
+def final_mnar_table():
+    r = json.loads((ROOT / "experiments/mnar_trainfit.json").read_text(encoding="utf-8"))
+    return pd.DataFrame({c: {"raw kappa": r["kappa_raw"][c][0], "SE": r["kappa_raw"][c][1],
+                             "shrunk kappa": r["kappa"]["zero_ml"][c]} for c in NUMERIC}).T

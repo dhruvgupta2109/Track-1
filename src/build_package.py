@@ -9,7 +9,7 @@ feed a shuffled test.csv with the id column dropped via DATATHON_INPUT_PATH, exe
 notebook top-to-bottom in a new kernel, and check row count / order / NaNs against the
 predictions produced in-process.
 """
-import importlib, inspect, json, os, shutil, subprocess, sys, tempfile
+import hashlib, importlib, inspect, json, os, shutil, subprocess, sys, tempfile
 from pathlib import Path
 import joblib, numpy as np, pandas as pd
 import nbformat
@@ -69,9 +69,12 @@ def predict_inprocess(artifact, predict_code, test):
 
 
 def main(name):
+    pkg = ROOT / "package" / name
+    submission = ROOT / "submissions" / f"{name}.csv"
+    if (pkg.exists() and any(pkg.iterdir())) or submission.exists():
+        raise SystemExit(f"Refusing to overwrite frozen candidate {name}; use a new candidate name.")
     cand = importlib.import_module(f"candidates.{name}")
     train = pd.read_csv(ROOT / "train.csv"); test = pd.read_csv(ROOT / "test.csv")
-    pkg = ROOT / "package" / name
     pkg.mkdir(parents=True, exist_ok=True)
     artifact = cand.fit_artifact(train)
     joblib.dump(artifact, pkg / "model.pkl", compress=3)
@@ -86,6 +89,17 @@ def main(name):
     sub.to_csv(ROOT / "submissions" / f"{name}.csv", index=False)
 
     verify(pkg, test, preds, name)
+    manifest = {
+        "candidate": name,
+        "source_candidate": artifact.get("source_candidate"),
+        "source_artifact_sha256": artifact.get("source_artifact_sha256"),
+        "files": {f: hashlib.sha256((pkg / f).read_bytes()).hexdigest()
+                  for f in ("model.pkl", "prediction_notebook.ipynb", "requirements.txt")},
+        "submission_sha256": hashlib.sha256(submission.read_bytes()).hexdigest(),
+        "prediction_rows": len(preds),
+        "fresh_kernel_scenarios": ["platform", "template_default", "stress", "dropcol", "onerow"],
+    }
+    (pkg / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
 
 
 def stress_input(test):

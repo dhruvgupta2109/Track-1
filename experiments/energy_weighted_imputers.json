@@ -1,0 +1,71 @@
+{
+  "test": {
+    "blend_weighted": {
+      "humidity": 0.06945036742330246,
+      "occupancy": 8.201402546767921,
+      "previous_usage": 9.877544707039013,
+      "temperature": 2.585804571433917,
+      "total": 20.734202192664156
+    },
+    "c11_baseline": {
+      "humidity": 0.06945036742330246,
+      "occupancy": 8.285060568613838,
+      "previous_usage": 9.877544707039013,
+      "temperature": 2.5765243216035136,
+      "total": 20.808579964679666
+    },
+    "energy_weighted": {
+      "humidity": 0.06945036742330246,
+      "occupancy": 8.263342560271719,
+      "previous_usage": 9.877544707039013,
+      "temperature": 2.607259335136422,
+      "total": 20.817596969870454
+    }
+  },
+  "natmiss": {
+    "blend_weighted": {
+      "humidity": 0.1037887133308567,
+      "occupancy": 9.676546062487681,
+      "previous_usage": 13.453253375826934,
+      "temperature": 3.470813697085499,
+      "total": 26.70440184873097
+    },
+    "c11_baseline": {
+      "humidity": 0.1037887133308567,
+      "occupancy": 9.83430823638293,
+      "previous_usage": 13.453253375826934,
+      "temperature": 3.4655076441896346,
+      "total": 26.856857969730356
+    },
+    "energy_weighted": {
+      "humidity": 0.1037887133308567,
+      "occupancy": 9.645321499029107,
+      "previous_usage": 13.453253375826934,
+      "temperature": 3.4874358778368975,
+      "total": 26.689799466023796
+    }
+  },
+  "train": {
+    "blend_weighted": {
+      "humidity": 0.06402100955288444,
+      "occupancy": 4.1361911966769425,
+      "previous_usage": 5.979741778410178,
+      "temperature": 2.0223459271110515,
+      "total": 12.202299911751055
+    },
+    "c11_baseline": {
+      "humidity": 0.06402100955288444,
+      "occupancy": 4.183905135269511,
+      "previous_usage": 5.979741778410178,
+      "temperature": 2.020305149418929,
+      "total": 12.247973072651503
+    },
+    "energy_weighted": {
+      "humidity": 0.06402100955288444,
+      "occupancy": 4.171074045610349,
+      "previous_usage": 5.979741778410178,
+      "temperature": 2.0327696334361196,
+      "total": 12.24760646700953
+    }
+  }
+}

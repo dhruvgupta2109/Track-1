@@ -1,0 +1,38 @@
+{
+  "empty": {
+    "rows": 0,
+    "finite": true
+  },
+  "no_columns": {
+    "rows": 7,
+    "finite": true
+  },
+  "all_missing": {
+    "rows": 16,
+    "finite": true
+  },
+  "duplicate_index": {
+    "rows": 100,
+    "finite": true,
+    "max_change": 0.0
+  },
+  "offset_index": {
+    "rows": 100,
+    "finite": true,
+    "max_change": 0.0
+  },
+  "missing_type": {
+    "rows": 400,
+    "finite": true,
+    "max_change": 2.3041575636795812
+  },
+  "lowercase_type": {
+    "rows": 400,
+    "finite": true,
+    "max_change": 2.3041575636795812
+  },
+  "faulty_humidity_imputer": {
+    "rows": 20,
+    "finite": true
+  }
+}

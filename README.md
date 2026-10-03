@@ -1,46 +1,83 @@
-# MLDA Datathon 2026 — Track 1: Smart Campus (energy forecasting)
+# MLDA Datathon 2026 - Track 1: Smart Campus energy forecasting
 
-## Final solution: c09_dev_imputed
-**Public RMSE 3.20392 (rank 1)** · energy-model CV RMSE 3.048 clean / 3.228 test-like / 3.363 shift-weighted (5-fold × 4 repeats)
+## Final package: c18_private_safe
 
-1. **Test-aware feature imputation:** each missing numeric input (occupancy, previous_usage, temperature, humidity)
-   is filled by the average of 3 LightGBM imputers. They never use the target. They are trained on train plus
-   unlabelled test features, with:
-   - a train/test domain flag, predicting "as test";
-   - test rows weighted ×2;
-   - 5 copies of test-like mask augmentation;
-   - deviation features: each observed input minus its building×hour and building mean.
-2. **Energy model:** a structured linear ridge model:
-   - per-building intercept, occupancy and temperature slopes;
-   - shared previous_usage and humidity slopes;
-   - smooth daily profile per building type with shrunk hour corrections;
-   - weekend shape, annual season and temperature².
+**c18 preserves c17's statistical model and supplied-test predictions, and improves private-input handling.**
+Its CSV is byte-identical to c17, whose recorded public RMSE is **3.18775**. c18 has no separate public or private score.
+The best observed public result remains **c16: 3.18618**. We retain c17's train-estimated correction rather than choosing
+offset sizes from public results; the 0.00157 public difference does not establish a private-test advantage.
 
-Why: the test set holds about 4× more extreme (but genuine) occupancy / previous_usage values than train, and energy
-responds linearly to them, so linear extrapolation beats tree saturation. Imputing first avoids the slope distortion of
-per-missing-pattern sub-models (c03). The test-aware imputers fix c04's under-filling of test values (more spikes). They
-were steered by a label-free proxy (imputation error on hidden test-row values, slope-weighted) that ranked every
-submission in public-score order: 3.337 (c04) → 3.255 → 3.238 → 3.231 → 3.209 → 3.204 (c09).
-Full story: `notebooks/track1_analysis_presentation.ipynb`.
+The pipeline:
 
-## Where things are
-| Path | What |
+1. Clean inputs and recover a known building's type when absent or malformed.
+2. Fill missing numeric inputs with three target-free LightGBM models per feature, fitted on train plus unlabelled
+   public-test features. They use a domain flag, test rows weighted x2, five copies of correctly ordered mask
+   augmentation, deviations from building/hour means, and cyclic time features.
+3. Apply the structured ridge energy model: per-building intercept and occupancy/temperature slopes; shared
+   previous-usage/humidity slopes; daily profiles, residential schedule steps, weekend shape, season and temperature squared.
+4. Add empirical-Bayes-shrunk missing-value corrections estimated on naturally missing labelled training rows.
+5. If an imputer fails, retain the other fills and use the matching linear sub-model. Linear and finite-mean fallbacks
+   cover further prediction failures. These fallbacks cannot cover file-loading, dependency or platform failures.
+
+The model extrapolates in observed occupancy and previous usage, whose extremes track energy in labelled training
+rows. The complete-row energy-model CV RMSE is **2.998** (V5, paired 5-fold x4), versus 3.005 for V4. This is **not**
+a full c17 private-like CV score. Missing-value correction has uncertain cross-fitted benefit (-0.078 MSE, SE 0.126).
+Transferring the public feature distribution and train-estimated missingness mechanism to private data remains an assumption.
+
+## Latest improvement checks
+
+Two new five-fold checks held out feature values without using test energy labels:
+
+| Imputer | Test-feature proxy MSE | Naturally incomplete slice | Decision |
+|---|---:|---:|---|
+| Existing c11 trio | 20.809 | 26.857 | Retain |
+| Linear plus residual trees, fixed 50/50 blend | 21.257 | 27.208 | Worse |
+| Energy-weighted training, fixed 50/50 blend | 20.734 | 26.704 | Uncertain gain; retain existing model |
+
+The energy-weighted blend's paired test-proxy MSE change has a row-bootstrap 95% interval of **[-0.177, +0.027]**.
+It does not justify extra model size and complexity. These proxies are not leaderboard RMSE or measurements on genuinely
+missing values. No new leaderboard submissions were made. Exact errors, folds and uncertainty are retained under `experiments/`.
+
+c18 fixes a measured input issue: removing or lowercasing `building_type` changed c17 predictions by up to 2.304 units
+on the first 400 test rows. Known building IDs now recover the same predictions. All frozen c00-c17 packages are preserved.
+
+## Deliverables
+
+| Path | Purpose |
 |---|---|
-| `package/c09_dev_imputed/` | **Final submission package**: `prediction_notebook.ipynb` + `model.pkl` (+ optional `requirements.txt`) |
-| `submissions/c09_dev_imputed.csv` | Final prediction CSV (`id,prediction`) |
-| `package/c08_domain_ens_aug5/` | Fallback package (public 3.20937) |
-| `notebooks/track1_analysis_presentation.ipynb` | Analysis / presentation notebook (EDA → validation → model → test-aware imputation → error analysis → insights) |
-| `reports/track1_technical_report.pdf` | One-page technical report (source: `src/build_report.py`) |
-| `docs/track1_qa.md` | Judge Q&A preparation |
-| `FINAL_SUBMISSION_CHECKLIST.md` | Submission checklist |
-| `experiments/NOTES.md`, `log.jsonl`, `leaderboard.md`, `proxy_results.csv`, `oof/` | Experiment ledger, proxy scores, OOF predictions, public scores |
-| `src/` | Features (`features.py`), energy model (`linmodels.py`), imputers (`imputed.py`, `devimpute.py`), validation (`common.py`, `evalkit.py`, `proxy.py`), packaging (`build_package.py`), experiments (`exp*.py`) |
+| `package/c18_private_safe/` | Final inference notebook, model, image-pinned requirements and hash manifest |
+| `submissions/c18_private_safe.csv` | 3000 `id,prediction` rows; byte-identical to c17 |
+| `package/c17_mnar_eb/` | Statistical-model fallback package, public 3.18775 |
+| `package/c16_prev06_occ_selfmask/` | Best observed public variant; public-selected offsets |
+| `notebooks/track1_analysis_presentation.ipynb` | Executed analysis, final model explanation and full raw-data rebuild |
+| `reports/track1_technical_report.pdf` | Visually checked, one-page A4 report describing c18/c17 |
+| `docs/track1_qa.md` | Judge Q&A with assumptions and evidence boundaries |
+| `FINAL_SUBMISSION_CHECKLIST.md` | Verified local checks and remaining portal actions |
+| `experiments/NOTES.md`, `leaderboard.md`, `log.jsonl` | Historical experiment and public-score record |
+| `src/train_final.py` | Raw-data rebuild of energy model, imputers, conditional variances and MNAR calibration |
+| `tests/test_private_safe.py` | Prediction equivalence, type recovery, row invariance and failure isolation |
 
-## Reproduce
-```bash
-uv venv .venv --python 3.12 && uv pip install --python .venv/Scripts/python.exe -r requirements-image.txt nbconvert ipykernel catboost reportlab pypdf pypdfium2
-.venv/Scripts/python.exe src/build_package.py <new_candidate_name>   # retrain, package, run 3 fresh-kernel checks
-.venv/Scripts/python.exe src/build_presentation.py                   # regenerate the analysis notebook (then execute it)
-.venv/Scripts/python.exe src/build_report.py                         # regenerate the one-page PDF
+## Reproduce and verify
+
+Use Python 3.12 and the platform library versions. A working local environment is `.venv`.
+
+```powershell
+uv venv .venv --python 3.12
+uv pip install --python .venv/Scripts/python.exe -r requirements-image.txt nbconvert ipykernel reportlab pypdf pypdfium2
+.venv/Scripts/python.exe -X utf8 -B -m unittest discover -s tests -v
+.venv/Scripts/python.exe -X utf8 src/build_presentation.py
+.venv/Scripts/python.exe -X utf8 -m jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=600 notebooks/track1_analysis_presentation.ipynb
+.venv/Scripts/python.exe -X utf8 src/build_report.py
 ```
-Frozen package directories are read-only; to rebuild, copy a candidate module under a new name. Set `PYTHONUTF8=1` on Windows.
+
+The executed presentation rebuilt the full statistical pipeline in **40 s**, matching frozen predictions to **2.84e-14**.
+The inference notebook passed five fresh-kernel scenarios and a fresh environment with `requirements-image.txt` plus
+Jupyter tooling (7.7 s including kernel startup; exact CSV prediction match). The actual portal/private run remains untested.
+
+To package a new candidate, create `src/candidates/<new_name>.py` and run `src/build_package.py <new_name>`.
+The builder refuses to overwrite an existing package or prediction CSV. c18's package builder intentionally reuses c17's
+frozen parameters; `train_final.py`, exercised by the presentation, provides the independent full rebuild.
+
+Submission deadline in the supplied booklet: **4 October 2026, 11:30 AM Singapore time**. Follow the track page's
+inference-only notebook instructions; it conflicts with the booklet's generic full-pipeline wording. Uploading artifacts
+and confirming sandbox execution are still team actions.
