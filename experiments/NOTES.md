@@ -95,3 +95,8 @@ Key mechanism found: a no-occupancy sub-model inflates the prev coefficient (pre
 Test preds vs c03: corr 0.9987; complete rows rms change 0.22; changes concentrated on rows with missing values (rms 2-3.7).
 Stress curves (reports/figures/stress_curves.png): monotone, linear when observed. Small tree-imputer kinks
   inside the support (<=4 units). Gentler out-of-range slope when a proxy feature is missing.
+
+## Public LB: c04
+- c04 public 3.33681 (#1/6) vs c03 3.36875: -0.032. Local test-like predicted -0.068 -> ~47% transferred.
+  Gap public - test-like: c03 +0.072, c04 +0.109. Direction confirmed; magnitude over-predicted by the masked CV.
+  c04 frozen (read-only). Next focus: private robustness of the imputers (fitted on train + public-test features).
