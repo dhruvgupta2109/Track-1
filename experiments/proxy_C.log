@@ -1,0 +1,2 @@
+trio w2 aug x2                             TEST proxy 22.439 | train 12.529 | test per-feature occu 9.29 prev 10.11 temp 2.97 humi 0.07
+trio x3 seeds w2                           TEST proxy 22.470 | train 12.515 | test per-feature occu 9.24 prev 10.21 temp 2.95 humi 0.07

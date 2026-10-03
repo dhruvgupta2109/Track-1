@@ -1,0 +1,3 @@
+c04 pooled single (LB 3.337)               TEST proxy 25.851 | train 13.005 | test per-feature occu 11.07 prev 11.61 temp 3.10 humi 0.07
+trio+reg w2                                TEST proxy 22.611 | train 12.537 | test per-feature occu 9.44 prev 10.13 temp 2.97 humi 0.07
+trio+ET w2                                 TEST proxy 23.274 | train 12.744 | test per-feature occu 9.68 prev 10.34 temp 3.18 humi 0.07

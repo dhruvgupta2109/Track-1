@@ -1,0 +1,4 @@
+c06 trio w1 (LB 3.238)                     TEST proxy 22.650 | train 12.470 | test per-feature occu 9.45 prev 10.15 temp 2.98 humi 0.07
+c07 trio w2 (LB 3.231)                     TEST proxy 22.608 | train 12.550 | test per-feature occu 9.40 prev 10.17 temp 2.96 humi 0.07
+trio w3                                    TEST proxy 22.636 | train 12.639 | test per-feature occu 9.35 prev 10.24 temp 2.97 humi 0.07
+trio w4                                    TEST proxy 22.680 | train 12.780 | test per-feature occu 9.32 prev 10.30 temp 2.99 humi 0.07

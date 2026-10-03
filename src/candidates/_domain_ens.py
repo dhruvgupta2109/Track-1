@@ -10,7 +10,8 @@ DEEP = dict(IMP_PARAMS, num_leaves=63, min_child_samples=5, n_estimators=1000, l
 SLOW = dict(IMP_PARAMS, n_estimators=1500, learning_rate=0.01)
 CONFIGS = [(IMP_PARAMS, 11), (DEEP, 12), (SLOW, 13)]
 
-def build(train, test_weight=1.0):
+def build(train, test_weight=1.0, configs=None, copies=1):
+    configs = configs or CONFIGS
     test = pd.read_csv(ROOT / "test.csv")
     P = test_mask_patterns(test); P = P[P.any(1)]
     X = train.drop(columns="energy_usage")
@@ -19,8 +20,8 @@ def build(train, test_weight=1.0):
     dom = np.r_[np.zeros(len(X)), np.ones(len(test))]
     w = np.where(dom == 1, test_weight, 1.0)
     imps = {c: [] for c in COLS}
-    for params, seed in CONFIGS:
-        one = fit_imputers(rows, params=params, aug_patterns=P, aug_copies=1, cols=COLS, domain=dom, row_weight=w, aug_seed=seed)
+    for params, seed in configs:
+        one = fit_imputers(rows, params=params, aug_patterns=P, aug_copies=copies, cols=COLS, domain=dom, row_weight=w, aug_seed=seed)
         for c in COLS:
             imps[c].append(one[c])
     return {"linear": lin, "imputers": imps, "impute_cols": COLS, "domain": 1.0}

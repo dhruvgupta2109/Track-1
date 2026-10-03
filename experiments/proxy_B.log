@@ -1,0 +1,3 @@
+trio w6                                    TEST proxy 22.856 | train 12.980 | test per-feature occu 9.38 prev 10.39 temp 3.01 humi 0.07
+trio w10                                   TEST proxy 23.065 | train 13.365 | test per-feature occu 9.44 prev 10.55 temp 3.00 humi 0.07
+trio test-only                             TEST proxy 24.781 | train 19.662 | test per-feature occu 9.92 prev 11.60 temp 3.19 humi 0.07
