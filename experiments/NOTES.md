@@ -211,3 +211,7 @@ Spikes co-occur across features, so imputers get dev_c = x_c - profile mean (tar
 | trio w2 aug5 + dev (bldg,hour,weekend) | 21.29 | 12.27 |
 | **c09: trio w2 aug5 + dev (bldg,hour)+(bldg)** | **20.87** | **12.16** |
 c09 vs c08: proxy -1.34 (both test-like and train-like improve). At 0.03-0.055 public per unit, that projects to about -0.04 to -0.07.
+- **c09 public 3.20392 (#1)**: -0.0055 vs c08 despite proxy -1.34. Public delta per proxy unit across steps:
+  c04->c05 ~0.031, c07->c08 0.055, c08->c09 0.004. The proxy ranks correctly but its magnitude is unreliable for this
+  change. A likely reason: c09's gain sits on masked-observed values, whose co-missingness and spike structure differs
+  from the truly-missing test values.

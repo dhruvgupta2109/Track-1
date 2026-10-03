@@ -7,3 +7,4 @@
 | 2026-10-03 17:30 | c07_domain_ens_testw2 | submissions/c07_domain_ens_testw2.csv | proxy 23.57 | **3.23149** | **1** | + test rows x2 in imputer fit |
 | 2026-10-03 17:34 | c05_domain_imputed | submissions/c05_domain_imputed.csv | proxy 24.06 | 3.25549 | 1 | single domain-aware imputer |
 | 2026-10-03 17:46 | c08_domain_ens_aug5 | submissions/c08_domain_ens_aug5.csv | proxy 22.21 | **3.20937** | **1** | + mask augmentation x5 |
+| 2026-10-03 17:56 | c09_dev_imputed | submissions/c09_dev_imputed.csv | proxy 20.87 | **3.20392** | **1** | + deviation features for imputers; proxy -1.34 transferred only -0.0055 |
