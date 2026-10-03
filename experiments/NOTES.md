@@ -251,3 +251,6 @@ c09 vs c08: proxy -1.34 (both test-like and train-like improve). At 0.03-0.055 p
   independently), missing rows rms 0.40 (different imputers) -> c13 = 50/50 average.
 - 007's own notebook in our clean Windows env differs from its CSV on 37 missing-value rows (max 0.067):
   not bit-reproducible across platforms. c13 matches mean(c11, 007-notebook-output) to 3e-14.
+- **LB (hash-verified: site FILE HASH = sha256[:10])**: c11 3.19406, c12 **3.18937 (#1)**, c13 3.19578.
+  The prev-missing offset (+0.6 on ~7% of rows) gained -0.0047 -> missing-not-at-random previous_usage is present in
+  test. Averaging with 007 hurts (its imputers are weaker than c11's).
