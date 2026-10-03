@@ -33,15 +33,23 @@ def _mask_aug(F, col, patterns, copies, seed):
     return pd.concat(parts, ignore_index=True)
 
 
-def fit_imputers(feature_rows, params=IMP_PARAMS, aug_patterns=None, aug_copies=0, cols=IMPUTE):
+def fit_imputers(feature_rows, params=IMP_PARAMS, aug_patterns=None, aug_copies=0, cols=IMPUTE,
+                 row_weight=None, n_bags=1):
+    """row_weight: optional per-row weights for feature_rows. n_bags>1 -> list of seeded boosters (averaged)."""
     F0 = make_features(feature_rows)
+    w0 = np.ones(len(F0)) if row_weight is None else np.asarray(row_weight, float)
     boosters = {}
     for col in cols:
         F = F0 if not aug_copies else _mask_aug(F0, col, aug_patterns, aug_copies, seed=11)
-        ok = F[col].notna()
+        w = np.tile(w0, len(F) // len(F0))
+        ok = F[col].notna().to_numpy()
         X = F.drop(columns=[col])
-        m = lgb.LGBMRegressor(**params).fit(X[ok], F.loc[ok, col])
-        boosters[col] = m.booster_.model_to_string()
+        bags = []
+        for s in range(n_bags):
+            m = lgb.LGBMRegressor(**dict(params, random_state=params.get("random_state", 0) + s))
+            m.fit(X[ok], F.loc[ok, col], sample_weight=w[ok])
+            bags.append(m.booster_.model_to_string())
+        boosters[col] = bags[0] if n_bags == 1 else bags
     return boosters
 
 
@@ -52,9 +60,9 @@ def impute(df, boosters, cols=IMPUTE):
     for col in cols:
         miss = F[col].isna().to_numpy()
         if miss.any():
-            b = lgb.Booster(model_str=boosters[col])
             X = F.drop(columns=[col])[miss]
-            out.loc[out.index[miss], col] = b.predict(X)
+            strs = boosters[col] if isinstance(boosters[col], list) else [boosters[col]]
+            out.loc[out.index[miss], col] = np.mean([lgb.Booster(model_str=s).predict(X) for s in strs], axis=0)
     return out
 
 

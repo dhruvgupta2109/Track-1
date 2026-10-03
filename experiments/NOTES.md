@@ -100,3 +100,24 @@ Stress curves (reports/figures/stress_curves.png): monotone, linear when observe
 - c04 public 3.33681 (#1/6) vs c03 3.36875: -0.032. Local test-like predicted -0.068 -> ~47% transferred.
   Gap public - test-like: c03 +0.072, c04 +0.109. Direction confirmed; magnitude over-predicted by the masked CV.
   c04 frozen (read-only). Next focus: private robustness of the imputers (fitted on train + public-test features).
+
+## Round 4: private-robustness of c04 imputers (c05 experiments)
+- A. Train-only imputers (c05a, 5x4 CV): 3.053 / 3.233 / 3.431 (c04 3.048 / 3.228 / 3.364). Keeps most of the test-like gain, loses 1/3 of the shiftW gain.
+- Imputer accuracy on HELD-OUT rows (features only), two private-set hypotheses (`src/exp22_minimax.py`), energy-weighted imputation MSE:
+  | imputer | train-like rows | test-like rows |
+  |---|---|---|
+  | train-only | 14.44 | 35.33 |
+  | train+test x1 (c04) | 14.36 | 27.41 |
+  | test rows x2 | 14.90 | 26.50 |
+  | test rows x4 | 15.77 | 25.69 |
+  -> c04 is no worse than train-only on train-like rows and much better on test-like rows. The transductive
+     imputer carries no measurable regret. Test up-weighting is a bet on private=public; not adopted.
+- Imputation is much harder on test rows (occupancy RMSE 34 vs 22) because the spikes are unpredictable. This explains
+  why train-row CV over-predicts the c04 gain.
+- B. Bagging 5 seeds, shallower/deeper imputers, 2 augmentation copies: all within +-0.1 of c04 test-row imputation MSE, or worse.
+- C. Imputation-uncertainty blend: not pursued. Seeded bags barely disagree (bag5 ~ single model), so there is no reliable confidence signal.
+- D. c03/c04 OOF blend: global w=0.85-0.9 gives -0.004 masked (4/4) but worse shiftW (+0.003) and spike rows (+0.05) -> rejected.
+  Per regime: prev-missing w~0.7 (4.089->4.050), both-missing w~0.6 (5.96->5.82), occ-missing w=1.
+  About -0.007 RMSE overall, spike effect unknown -> not adopted.
+- Public-delta noise: the c04-c03 per-row MSE differences imply a public RMSE delta of -0.069 +- 0.04-0.055 (1 SE).
+  The observed -0.032 is within 1 SE. The public LB cannot resolve differences < ~0.05.
