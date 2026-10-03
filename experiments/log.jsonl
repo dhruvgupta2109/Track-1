@@ -102,3 +102,4 @@
 {"name": "LB_c15_prev_selfmask", "public_rmse": 3.18852}
 {"name": "LB_c14_prevoff085", "public_rmse": 3.18808}
 {"name": "LB_c16_prev06_occ_selfmask", "public_rmse": 3.18618}
+{"name": "LB_c17_mnar_eb", "public_rmse": 3.18775}

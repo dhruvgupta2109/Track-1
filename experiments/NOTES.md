@@ -288,3 +288,28 @@ c09 vs c08: proxy -1.34 (both test-like and train-like improve). At 0.03-0.055 p
   Test mean shifts: prev +0.88, occupancy +0.41, temperature +0.13, humidity +0.19. rms vs c11 0.25, vs c16 0.12.
   Inference wrapped: exception -> plain linear model, non-finite -> train mean (never triggered on test, stress,
   dropped-column inputs). 5 fresh-kernel scenarios + image-only clean env (exact match, 2.5 s). sha256[:10] 05cb6f912c.
+- **LB c17 3.18775** (c16 3.18618, c11 3.19406): train-only MNAR keeps ~80% of c16's gain over c11; the 0.0016 gap
+  to c16 is inside public noise. c17 stays the principled final candidate (decision rule fixed before the score).
+
+## Round 14: broad sweep for remaining signal (all label-free / train-validated) - all negative
+- Energy response at extremes (exp44): residual ~ z + z^2 on train complete rows: no curvature for prev (t +1.1) or
+  occupancy (t +0.7); residual SD rises with |z| (2.91 -> 3.40) = heteroscedastic noise, mean ~0.
+- Test missingness co-occurs with ABNORMAL rows: observed-feature spike rate ~3x in rows with a natural missing value
+  (prev-missing rows: occupancy spikes 28% vs 8% in complete rows); train shows ~none. But imputation errors of observed
+  features in those rows have mean ~0 (prev +0.06 se 0.065, others |.|<0.04 SD), RMS 1.13-1.22 vs 0.97: abnormality
+  is two-sided -> more variance, no exploitable mean shift (prior natural-missing-indicator imputers were also worse).
+- Test spikes = same mechanism as train (same schedule: prev 22-03h, occupancy 07-09h; same |z| median ~4; similar
+  building mix) -> linear extrapolation stays justified.
+- Error budget of imputation (test domain, slope-weighted): prev 51%, occupancy 33%, temperature 16% (SCI slope
+  2.5/degC), humidity ~0; ~1.2 energy-MSE per test row in total.
+- Level drift train->test (exp45): test busier (matched-by-hour medians prev +3.3, occupancy +12.7), but given
+  occupancy and time features, test prev is exactly as train predicts (median residual -0.04 vs -0.06) -> no
+  unexplained energy-level drift. (Train: month-level energy moves 0.95x with prev level.)
+- Imputer calibration in test domain: slope true-on-imputed 1.03 prev / 1.02 occupancy -> rescaling cuts imputation
+  MSE <0.3%: negligible.
+- Spike clustering: spike OCCURRENCE is scheduled (LOO corr 0.36 within building x dow x hour) but spike DIRECTION is
+  not (corr 0.03) -> nothing for the conditional mean.
+- Interaction screen on V5 OOF residuals (exp46, 20 groups incl. building x hour/dow/month, per-building prev slope,
+  occ/prev curvature, temp x humidity, temp x season x building): every group worsens out-of-sample MSE (>= +0.0019).
+- Conclusion: complete rows at the noise floor; imputers calibrated and saturated on the proxy; MNAR handled from
+  train. Remaining public differences between principled variants are inside public noise.

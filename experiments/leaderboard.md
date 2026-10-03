@@ -14,3 +14,4 @@
 | 2026-10-03 20:48 | c15_prev_selfmask | submissions/c15_prev_selfmask.csv (sha256 9005eee511) | — | 3.18852 | 1 | prev offset ∝ building test SD (mean 0.6): -0.0009 vs c12 |
 | 2026-10-03 20:48 | c14_prevoff085 | submissions/c14_prevoff085.csv (sha256 1286ddaeb2) | — | 3.18808 | 1 | flat prev offset 0.85: -0.0013 vs c12 |
 | 2026-10-03 20:48 | c16_prev06_occ_selfmask | submissions/c16_prev06_occ_selfmask.csv (sha256 7ae6cbca99) | — | **3.18618** | **1** | c12 + occupancy self-masking offsets: -0.0032 vs c12 |
+| 2026-10-03 21:21 | c17_mnar_eb | submissions/c17_mnar_eb.csv (sha256 05cb6f912c) | train-only MNAR, EB-shrunk (pre-registered) | 3.18775 | 2 (behind own c16) | principled replacement for c12-c16 offsets; +0.0016 vs c16 = within public noise |
