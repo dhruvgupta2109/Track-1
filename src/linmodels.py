@@ -1,0 +1,32 @@
+"""Training side of the pattern-submodel linear model (inference lives in features.py)."""
+import itertools
+import numpy as np
+from sklearn.linear_model import Ridge
+from features import NUMERIC, DEFAULT_SPEC, clean_input, linear_design, predict_linear
+
+
+def all_patterns():
+    return [tuple(c for c in NUMERIC if c in s) for r in range(5) for s in itertools.combinations(NUMERIC, r)]
+
+
+def fit_linear_artifact(df, y, alpha=3.0, spec=DEFAULT_SPEC, clip=(0.0, 400.0), weights=None):
+    """One ridge per missingness pattern, each trained on all rows where its columns are observed.
+    Stored as plain numpy (coef, intercept) -> no library-version deserialisation risk."""
+    c = clean_input(df); y = np.asarray(y, dtype=float)
+    coefs = {}
+    for p in all_patterns():
+        need = [col for col in NUMERIC if col not in p]
+        ok = c[need].notna().all(1).to_numpy()
+        m = Ridge(alpha=alpha).fit(linear_design(c[ok], drop=set(p), spec=spec), y[ok],
+                                   sample_weight=None if weights is None else weights[ok])
+        coefs[p] = (m.coef_.astype(float), float(m.intercept_))
+    return {"coefs": coefs, "spec": spec, "clip": clip}
+
+
+class PatternLinear:
+    def __init__(self, alpha=3.0, spec=DEFAULT_SPEC):
+        self.alpha, self.spec = alpha, spec
+    def fit(self, X, y):
+        self.art = fit_linear_artifact(X, y, self.alpha, self.spec); return self
+    def predict(self, X):
+        return predict_linear(self.art, X)

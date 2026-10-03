@@ -1,0 +1,18 @@
+import pandas as pd, numpy as np
+tr=pd.read_csv("train.csv"); te=pd.read_csv("test.csv"); ss=pd.read_csv("sample_submission.csv")
+print(tr.shape, te.shape, ss.shape); print(tr.dtypes)
+print("ids test==sample order:", (te.id.values==ss.id.values).all())
+print("missing train\n", tr.isna().sum()); print("missing test\n", te.isna().sum())
+print(tr.describe().T)
+print(tr.groupby(["building_id","building_type"]).energy_usage.agg(["count","mean","std"]))
+print(te.building_id.value_counts())
+idn=lambda s: s.str[2:].astype(int)
+print("id range train", idn(tr.id).min(), idn(tr.id).max(), "test", idn(te.id).min(), idn(te.id).max())
+print("id overlap", len(set(tr.id)&set(te.id)))
+print("dup feature rows", tr.drop(columns=["id","energy_usage"]).duplicated().sum())
+print(tr.month.value_counts().sort_index().to_dict()); print(te.month.value_counts().sort_index().to_dict())
+print(tr.day_of_week.value_counts().to_dict())
+c=tr[["temperature","humidity","occupancy","previous_usage","energy_usage","hour","month"]].corr(); print(c.round(3))
+d=tr.energy_usage-tr.previous_usage; print("target-prev diff", d.describe())
+from sklearn.metrics import mean_squared_error
+m=tr.previous_usage.notna(); print("RMSE prev as pred", np.sqrt(mean_squared_error(tr.energy_usage[m], tr.previous_usage[m])), "std target", tr.energy_usage.std())

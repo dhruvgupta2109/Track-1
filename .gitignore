@@ -1,0 +1,4 @@
+.venv/
+package/*/executed.ipynb
+__pycache__/
+experiments/seg_*.pkl
