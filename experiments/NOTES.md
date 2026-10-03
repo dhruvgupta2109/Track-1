@@ -254,3 +254,16 @@ c09 vs c08: proxy -1.34 (both test-like and train-like improve). At 0.03-0.055 p
 - **LB (hash-verified: site FILE HASH = sha256[:10])**: c11 3.19406, c12 **3.18937 (#1)**, c13 3.19578.
   The prev-missing offset (+0.6 on ~7% of rows) gained -0.0047 -> missing-not-at-random previous_usage is present in
   test. Averaging with 007 hurts (its imputers are weaker than c11's).
+
+## Round 12: MNAR deep-dive (self-masking) after c12 confirmed MNAR in test
+- Research: NeuMiss (Le Morvan et al. NeurIPS 2020): Bayes predictor for linear models under self-masking MNAR =
+  imputed prediction + pattern-dependent shift; pattern-mixture "delta adjustment"; Mercaldo & Blume pattern submodels.
+- prev bias NOT concentrated in spike hours (+0.52 in 22-04h vs +1.26 elsewhere); by type: SPT +2.5, SCI +2.1, ADM +1.9,
+  RES +0.1, ENG +0.2 -> consistent with self-masking (shift scales with conditional SD).
+- Conditional SD per (domain, building) from OOF imputation errors (experiments/imputation_oof_errors.csv):
+  test > train for prev (e.g. ENG_A 11.1 vs 7.2) and occupancy (RES_A 46 vs 27).
+- Self-masking fit on single-missing natural rows (shift in SD units): prev kappa 0.41 (se 0.14), occupancy 0.20
+  (0.20), temperature -0.19 (0.22), humidity noisy; pooled 0.25 (0.10).
+- c12's LB gain (-0.0047) is only ~1.3 SE of public noise for a ~200-row change -> LB confirms direction only.
+- Probes: c14 flat prev +0.85 (magnitude); c15 prev offset scaled by test SD (structure, mean 0.6);
+  c16 = c12 + occupancy self-masking offsets (0.2-0.88).
