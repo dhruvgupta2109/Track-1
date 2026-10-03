@@ -399,3 +399,21 @@ c19 has no public score and is not the selected final package unless subsequent 
 rows change; other rows retain their predictions. RMS change on affected rows 0.2503, maximum absolute change 1.7882.
 Package `package/c19_occ_energy_blend/` passes all five fresh-kernel scenarios. Metadata/measurements are in
 `experiments/c19_occ_energy_blend.json`; existing packages/CSVs are preserved. No portal upload was made.
+
+## Round 15: audit of teammate's c18 (public ~3.12): c16 + 1.0 x (c16 - MAR baseline) on the 231 rows with 2+ missing
+- Files: ../Track1_BEST_c18_3.12 (CSV sha256[:10] 50202f74e9). Pickle loaded with an allow-list unpickler: only numpy
+  arrays + plain containers. Only the 231 multi-missing rows differ from our c16 (others identical to 3e-14);
+  push mean +0.62, rms 1.82, max +14.6, largest on prev+occupancy rows and 21-23h / 07-15h (spike schedules).
+- Clean image-only env: reproduces its CSV to 2.6e-8 (4.3 s); stress / dropped column OK. Minor bug: with a 1-row
+  input (or all rows sharing one missing-pattern size) np.array(list of tuples) becomes 2-D -> step 4 raises and
+  falls back to c16 (safe, no crash).
+- Leaderboard arithmetic from its own scores (P1 = baseline, w=-1: 3.30866; c16 3.18618; R1b w=+1: ~3.12):
+  curvature 0.19 (0.256 if all rows weighted equally), public-optimal w* ~1.4-1.8, z ~5.5-8 -> NOT noise on public;
+  w=1 is a deliberate under-shoot.
+- Label-free check (exp47_c18_push_check.py, out-of-fold imputers): rows with one NATURAL missing input A and a
+  second input B hidden: slope of (truth - c16) on (c16 - MAR) = +0.08 (se 0.17); the w=1 push RAISES energy MSE
+  by +1.1 per row. Control (complete rows, MCAR): -0.13 (0.04), +1.6 per row.
+  -> c16's imputations are calibrated wherever truth is visible; c18's gain must come from the genuinely-missing
+  values themselves (self-masking in multi-missing rows), which only public labels reveal. Verdict: not overfit to
+  noise, but a public-label-calibrated correction with no independent confirmation; transfers iff the private
+  missingness mechanism matches the public test's.
