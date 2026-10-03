@@ -11,3 +11,6 @@
 | 2026-10-03 20:39 | c13_avg_c11_007 | submissions/c13_avg_c11_007.csv (sha256 3f3be1d398) | — | 3.19578 | 2 | 50/50 with teammate 007: worse than c11 alone |
 | 2026-10-03 20:39 | c11_v5_cyclic | submissions/c11_v5_cyclic.csv (sha256 9b0a5253e8) | proxy NATMISS 26.86 | 3.19406 | 1 | mask fix + cyclic imputers + V5 energy |
 | 2026-10-03 20:40 | c12_v5_cyclic_prevoff | submissions/c12_v5_cyclic_prevoff.csv (sha256 a5cbf65114) | — | **3.18937** | **1** | c11 + 0.6 offset on prev-missing rows: MNAR confirmed |
+| 2026-10-03 20:48 | c15_prev_selfmask | submissions/c15_prev_selfmask.csv (sha256 9005eee511) | — | 3.18852 | 1 | prev offset ∝ building test SD (mean 0.6): -0.0009 vs c12 |
+| 2026-10-03 20:48 | c14_prevoff085 | submissions/c14_prevoff085.csv (sha256 1286ddaeb2) | — | 3.18808 | 1 | flat prev offset 0.85: -0.0013 vs c12 |
+| 2026-10-03 20:48 | c16_prev06_occ_selfmask | submissions/c16_prev06_occ_selfmask.csv (sha256 7ae6cbca99) | — | **3.18618** | **1** | c12 + occupancy self-masking offsets: -0.0032 vs c12 |

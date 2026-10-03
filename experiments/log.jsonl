@@ -99,3 +99,6 @@
 {"name": "LB_c13_avg_c11_007", "public_rmse": 3.19578}
 {"name": "LB_c11_v5_cyclic", "public_rmse": 3.19406}
 {"name": "LB_c12_v5_cyclic_prevoff", "public_rmse": 3.18937}
+{"name": "LB_c15_prev_selfmask", "public_rmse": 3.18852}
+{"name": "LB_c14_prevoff085", "public_rmse": 3.18808}
+{"name": "LB_c16_prev06_occ_selfmask", "public_rmse": 3.18618}
