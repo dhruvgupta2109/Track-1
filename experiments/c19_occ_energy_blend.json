@@ -1,0 +1,30 @@
+{
+  "candidate": "c19_occ_energy_blend",
+  "role": "experimental",
+  "separate_public_score": null,
+  "rows": 3000,
+  "changed_rows": 206,
+  "occupancy_missing_rows": 206,
+  "max_abs_change": 1.788235401499339,
+  "rms_change_all": 0.06558294005424332,
+  "rms_change_occupancy_missing": 0.2502752472979996,
+  "prediction_range": [
+    14.06956515118462,
+    131.5659062936073
+  ],
+  "feature_holdout_proxy": {
+    "test": {
+      "reference": 20.808579964679666,
+      "occupancy_only_blend": 20.72492194283375
+    },
+    "natmiss": {
+      "reference": 26.856857969730356,
+      "occupancy_only_blend": 26.699095795835106
+    },
+    "train": {
+      "reference": 12.247973072651503,
+      "occupancy_only_blend": 12.200259134058935
+    }
+  },
+  "selection": "Occupancy chosen from saved experiment-49 results; fixed 50/50 blend; other imputers and c17 correction unchanged"
+}

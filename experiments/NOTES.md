@@ -382,3 +382,20 @@ Evidence corrections in the final explanation: previous_usage's same-slot interp
 generator; ~3.0 complete-row error supports limited headroom, not proof of a random irreducible floor; the feature proxy
 is approximate for correlated joint missingness and temperature squared; train-domain proxy success does not prove
 private robustness when deployed with the test-domain flag. The c17 MNAR cross-fitted improvement remains uncertain.
+
+## Round 16: requested experimental CSV - c19_occ_energy_blend
+
+User requested a new prediction CSV to try. c19 starts from c18/c17 and changes only occupancy imputation: average
+the existing three members with three new members fitted with squared energy-slope building weights. This is a fixed
+50/50 blend. Occupancy was chosen after inspecting experiment 49 because its blend improved all three feature-holdout
+slices; temperature weighting worsened all three, so it is retained unchanged. This feature choice is exploratory,
+not pre-registered. Energy coefficients, other imputers and train-estimated MNAR calibration remain unchanged.
+
+Cached held-out feature proxy for this exact occupancy-only choice: test 20.8086 -> 20.7249, naturally-incomplete
+26.8569 -> 26.6991, train 12.2480 -> 12.2003. This small proxy improvement does not establish a public RMSE gain.
+c19 has no public score and is not the selected final package unless subsequent evidence justifies that decision.
+
+`submissions/c19_occ_energy_blend.csv`: 3000 finite predictions in sample-submission ID order. All 206 occupancy-missing
+rows change; other rows retain their predictions. RMS change on affected rows 0.2503, maximum absolute change 1.7882.
+Package `package/c19_occ_energy_blend/` passes all five fresh-kernel scenarios. Metadata/measurements are in
+`experiments/c19_occ_energy_blend.json`; existing packages/CSVs are preserved. No portal upload was made.

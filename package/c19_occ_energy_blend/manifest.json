@@ -1,0 +1,19 @@
+{
+  "candidate": "c19_occ_energy_blend",
+  "source_candidate": "c18_private_safe",
+  "source_artifact_sha256": "cc3087dac7dbeb28b72afca7d5f80f315f6f55a502c89e45363a8de3e32c39ec",
+  "files": {
+    "model.pkl": "7f7a1b120d1670f2183cd6b2b2e6575873cc6728d56e7961142f031d31019fa8",
+    "prediction_notebook.ipynb": "5054480bfd685460e798a407268ab0943ad19b344464742910a7f8d17390e4bf",
+    "requirements.txt": "cf90bbee3df2042629cf519c85680eedcdbeeec34a6b0ad936674241ca738d02"
+  },
+  "submission_sha256": "db7a2d0d523b00d01222576ef4c9559384418f550c1b477f6e48f97e3ea0ab78",
+  "prediction_rows": 3000,
+  "fresh_kernel_scenarios": [
+    "platform",
+    "template_default",
+    "stress",
+    "dropcol",
+    "onerow"
+  ]
+}
