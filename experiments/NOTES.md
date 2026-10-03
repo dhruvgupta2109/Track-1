@@ -224,3 +224,12 @@ c09 vs c08: proxy -1.34 (both test-like and train-like improve). At 0.03-0.055 p
 - Natural-missingness indicators for the other columns: single imputer 21.80 / 30.23 (count: 21.69 / 29.57) vs
   21.40 / 29.05 without; c09 + indicators 21.17 / 28.65 vs c09 20.87 / 27.63 -> worse (overfits the few naturally-incomplete rows). Rejected.
 **Best: c09 (public 3.20392).**
+
+## Big-picture accounting (step back)
+- Cross-row linkage: identical (month, dow, hour, temp, hum) across rows in 5 groups vs 7 in a shuffled control.
+  Weather is per-row; there are no shared timestamps. Every row is independent; no cross-row information exists.
+- Complete train rows (c04 OOF): RMSE 3.001 plain, 3.058 density-weighted to test -> complete test rows (82%) ~3.0-3.06.
+- Implied error on test rows WITH missing values (18%): c04 4.4-4.55 -> c09 3.8-4.0. All public gains came from these rows.
+- Floor: noise ~3.0 plus the unrecoverable imputation variance (spikes hidden in the missing value; c09 per-feature
+  imputation energy-MSE: occupancy 8.4, prev 9.8, temperature 2.6). Perfect imputation would give ~3.03 public;
+  realistic remaining headroom is a few hundredths, at rising cost per step and inside public noise.
