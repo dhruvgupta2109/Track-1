@@ -267,3 +267,24 @@ c09 vs c08: proxy -1.34 (both test-like and train-like improve). At 0.03-0.055 p
 - c12's LB gain (-0.0047) is only ~1.3 SE of public noise for a ~200-row change -> LB confirms direction only.
 - Probes: c14 flat prev +0.85 (magnitude); c15 prev offset scaled by test SD (structure, mean 0.6);
   c16 = c12 + occupancy self-masking offsets (0.2-0.88).
+
+## Round 13: grading-method review -> a not-leaderboard-tuned final candidate (c17)
+- Booklet: final 60% = RMSE, MAE, R2 on a HIDDEN private test run through our notebook ("different observations and
+  edge cases"; "any execution error ... may result in disqualification"); public LB "only an indication".
+- LB results: c16 3.18618, c14 3.18808, c15 3.18852 (all < c12 3.18937). Observation from existing scores only:
+  the c11/c12/c14 curvature implies prev-missing rows carry ~2.0% of the public score's sensitivity (6.8% of the file):
+  the public score likely does not weight all rows equally (or is noised). Not used for any parameter. Leaderboard-
+  structure probing was proposed, blocked by the tool policy, and dropped (user: do not overfit public).
+- Forensics: IDs are a clean split (train 1-8000, test 8001-11000), no residual autocorrelation by id; test has more
+  previous_usage dips (q01 7.9 vs 17.5) but the V5 model is unbiased on train dips and spikes (exp42_dips.py).
+- c12-c16 offsets were partly hand-picked (0.6 = manual shrink of +1.02; occupancy in / temperature out by judgement)
+  and then selected on public. Replaced by a PRE-REGISTERED train-only rule (exp43_mnar_trainfit.py):
+  c11 imputers (dom 0) + V5 energy OOF 5x4 on naturally-missing train rows; kappa_c by WLS on single-missing rows:
+  prev +0.418 (0.153), occupancy +0.154 (0.175), temperature -0.196 (0.221), humidity +1.46 (1.56).
+  Empirical-Bayes shrinkage, skeptical zero-centred prior (ML tau2 0.058): 0.297 / 0.101 / -0.106 / 0.034 (chosen
+  before any public score; exchangeable-REML variant 0.342 / 0.160 / -0.021 / 0.197 kept as a sensitivity check).
+  Cross-fitted on train (50 splits): dMSE vs no correction -0.078 (se 0.126); prev-only raw -0.187 (0.184).
+- c17_mnar_eb = c11 + kappa x slope (finite difference at the imputed value) x test conditional SD per building.
+  Test mean shifts: prev +0.88, occupancy +0.41, temperature +0.13, humidity +0.19. rms vs c11 0.25, vs c16 0.12.
+  Inference wrapped: exception -> plain linear model, non-finite -> train mean (never triggered on test, stress,
+  dropped-column inputs). 5 fresh-kernel scenarios + image-only clean env (exact match, 2.5 s). sha256[:10] 05cb6f912c.

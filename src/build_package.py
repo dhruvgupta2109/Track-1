@@ -126,7 +126,7 @@ def run_nb(d, env_input, env_output):
 
 def verify(pkg, test, preds, name):
     """Fresh dir with ONLY the package files; fresh kernel each run."""
-    for scenario in ["platform", "template_default", "stress"]:
+    for scenario in ["platform", "template_default", "stress", "dropcol", "onerow"]:
         with tempfile.TemporaryDirectory() as d:
             d = Path(d)
             for f in ["model.pkl", "prediction_notebook.ipynb"]:
@@ -145,6 +145,13 @@ def verify(pkg, test, preds, name):
                 assert list(out.columns) == ["id", "prediction"] and len(out) == len(test)
                 assert (out["id"].to_numpy() == test["id"].to_numpy()).all()
                 assert np.allclose(out["prediction"].to_numpy(), preds, atol=1e-6)
+            elif scenario in ("dropcol", "onerow"):  # a whole column absent / a single-row file
+                st = test.drop(columns=["id", "previous_usage"]).head(200) if scenario == "dropcol" else test.drop(columns=["id"]).head(1)
+                st.to_csv(d / "input.csv", index=False)
+                run_nb(d, str(d / "input.csv"), str(d / "out.csv"))
+                out = pd.read_csv(d / "out.csv")
+                assert len(out) == len(st) and np.isfinite(out["prediction"]).all()
+                if scenario == "onerow": assert np.allclose(out.prediction.iloc[0], preds[0], atol=1e-6)
             else:
                 st = stress_input(test); st.to_csv(d / "input.csv", index=False)
                 run_nb(d, str(d / "input.csv"), str(d / "out.csv"))
