@@ -1,6 +1,7 @@
 """Training side of the pattern-submodel linear model (inference lives in features.py)."""
 import itertools
 import numpy as np
+import pandas as pd
 from sklearn.linear_model import Ridge
 from features import NUMERIC, DEFAULT_SPEC, clean_input, linear_design, predict_linear
 
@@ -9,7 +10,14 @@ def all_patterns():
     return [tuple(c for c in NUMERIC if c in s) for r in range(5) for s in itertools.combinations(NUMERIC, r)]
 
 
-def fit_linear_artifact(df, y, alpha=3.0, spec=DEFAULT_SPEC, clip=(0.0, 400.0), weights=None, estimator="ridge", huber_eps=1.5):
+def fit_linear_artifact(df, y, alpha=3.0, spec=DEFAULT_SPEC, clip=(0.0, 400.0), weights=None, estimator="ridge", huber_eps=1.5,
+                        building_wls=False):
+    if building_wls:  # two-stage: inverse per-building residual variance from a first unweighted fit
+        first = fit_linear_artifact(df, y, alpha, spec, clip)
+        r = np.asarray(y, float) - predict_linear(first, df)
+        var = pd.Series(r ** 2).groupby(df["building_id"].to_numpy()).mean()
+        w = 1.0 / pd.Series(df["building_id"].to_numpy()).map(var).fillna(var.mean()).to_numpy()
+        weights = w / w.mean() if weights is None else weights * w / w.mean()
     """One ridge per missingness pattern, each trained on all rows where its columns are observed.
     Stored as plain numpy (coef, intercept) -> no library-version deserialisation risk."""
     c = clean_input(df); y = np.asarray(y, dtype=float)

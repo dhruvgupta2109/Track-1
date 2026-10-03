@@ -48,9 +48,22 @@ def make_tables(F, levels=LEVELS):
 
 
 
-def fit_dev_imputers(rows, domain, configs, aug_patterns, copies, test_weight, levels=LEVELS):
+CYC_CODE = '''
+def add_cyclic(F):
+    """sin/cos of hour and month for the imputers (appended after 'dom')."""
+    G = F.copy(); h = G["hour"].to_numpy(dtype=float); m = G["month"].to_numpy(dtype=float)
+    G["h_sin"], G["h_cos"] = np.sin(2 * np.pi * h / 24), np.cos(2 * np.pi * h / 24)
+    G["m_sin"], G["m_cos"] = np.sin(2 * np.pi * m / 12), np.cos(2 * np.pi * m / 12)
+    return G
+'''
+exec(CYC_CODE)
+
+
+def fit_dev_imputers(rows, domain, configs, aug_patterns, copies, test_weight, levels=LEVELS, cyclic=False):
     F0 = make_features(rows)
     F0["dom"] = np.asarray(domain, dtype=float)
+    if cyclic:
+        F0 = add_cyclic(F0)
     tables = make_tables(F0, levels)
     w0 = np.where(np.asarray(domain) == 1, test_weight, 1.0)
     imps = {c: [] for c in NUMS}

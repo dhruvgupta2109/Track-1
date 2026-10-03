@@ -1,0 +1,5 @@
+  scenario platform: OK
+  scenario template_default: OK
+  stress: 400 rows finite, range 15.3..192.3
+  scenario stress: OK
+OK package/c12_v5_cyclic_prevoff; submissions/c12_v5_cyclic_prevoff.csv written. pred mean 54.788 std 20.355

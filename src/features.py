@@ -137,6 +137,10 @@ def linear_design(c, drop=(), spec=DEFAULT_SPEC):
                 cols.append((GX[grp][:, :, None] * v[:, None, :]).reshape(n, -1) * scale)
                 continue
             cols.append(GX[grp] * c[col].to_numpy()[:, None] * scale)
+    if spec.get("res_steps"):  # explicit residential day (08-21) / night schedule step indicators
+        h = c["hour"].to_numpy(); res = T[:, TYPES.index("Residential")]
+        day = np.where(np.isfinite(h), ((h >= 8) & (h < 21)).astype(float), 13 / 24)
+        cols.append(np.stack([day * res, (1 - day) * res], 1))
     if spec.get("season", True):
         m = c["month"].to_numpy()
         sc = np.stack([np.sin(2 * np.pi * m / 12), np.cos(2 * np.pi * m / 12)], 1)

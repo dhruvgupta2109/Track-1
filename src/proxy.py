@@ -16,7 +16,13 @@ from features import make_features, BUILDINGS
 from imputed import _mask_aug, IMP_PARAMS as _IP
 IMP_PARAMS = dict(_IP, n_jobs=3)
 
-TR, TE = load(); P = test_mask_patterns(TE); PN = P[P.any(1)]
+TR, TE = load(); P = test_mask_patterns(TE)
+# NOTE: P columns follow common.NUM; _mask_aug iterates features.NUMERIC -> reorder (mask-order bug fix).
+# Set PROXY_LEGACY_MASK=1 to reproduce the original (buggy) order used for c05-c09.
+import os as _os
+from features import NUMERIC as _NUMERIC
+from common import NUM as _NUM
+PN = P[P.any(1)] if _os.environ.get("PROXY_LEGACY_MASK") == "1" else P[P.any(1)][:, [_NUM.index(c) for c in _NUMERIC]]
 ALL = ["occupancy", "previous_usage", "temperature", "humidity"]
 XTR = TR.drop(columns="energy_usage"); XTE = TE[XTR.columns]
 KT = list(KFold(5, shuffle=True, random_state=1).split(XTR)); KE = list(KFold(5, shuffle=True, random_state=0).split(XTE))

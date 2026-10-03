@@ -233,3 +233,21 @@ c09 vs c08: proxy -1.34 (both test-like and train-like improve). At 0.03-0.055 p
 - Floor: noise ~3.0 plus the unrecoverable imputation variance (spikes hidden in the missing value; c09 per-feature
   imputation energy-MSE: occupancy 8.4, prev 9.8, temperature 2.6). Perfect imputation would give ~3.03 public;
   realistic remaining headroom is a few hundredths, at rising cost per step and inside public noise.
+
+## Round 11: teammate's submission 007 (public 3.19799) + research-driven ideas
+- 007 (external/submission_007) built on c09: (a) found a MASK-ORDER BUG in c09 imputer augmentation (common.NUM vs
+  features.NUMERIC order: test missing patterns applied to the wrong columns); (b) energy model with residential
+  day/night steps + hour-deviation 0.1; (c) cyclic weather features, profile blends, clipping. 007 vs c09 rms 0.22.
+- Research (Le Morvan/Josse NeurIPS'21; missing-indicator method; MIRRAMS): impute-then-regress is Bayes-optimal for
+  any mechanism only if the regressor is trained on imputed rows. MNAR can hide from MCAR-masked validation.
+- MNAR check on NATURALLY missing train rows (c09 imputers, mask fixed, OOF 5x2): previous_usage missing ->
+  residual +1.02 (se 0.35); temperature -0.38 (0.30), humidity +0.17, occupancy +0.20 (0.40).
+  Label-free mechanism test (missing rate vs cell spike rate): train prev r=3.9 (n.s.), TEST r=1.4 (n.s.) ->
+  most test missingness looks ~random w.r.t. spikes; test-side bias probably small. c12 probes it (+0.6 offset).
+- Energy V5 (residential steps + hour_dev 0.1), paired 5x4 complete-row RMSE: V4 3.0050 -> V5 2.9978 (4/4 wins);
+  per-building WLS adds nothing (-0.0002).
+- Imputer proxy (mask fixed): c09 20.87/27.63 (test/NATMISS) -> fixed 20.84/27.37 -> fixed+cyclic 20.81/26.86.
+- c11 = fixed+cyclic imputers + V5 energy. c11 vs 007: complete rows rms 0.035 (same energy model reached
+  independently), missing rows rms 0.40 (different imputers) -> c13 = 50/50 average.
+- 007's own notebook in our clean Windows env differs from its CSV on 37 missing-value rows (max 0.067):
+  not bit-reproducible across platforms. c13 matches mean(c11, 007-notebook-output) to 3e-14.
