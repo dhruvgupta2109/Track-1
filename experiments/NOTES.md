@@ -215,3 +215,12 @@ c09 vs c08: proxy -1.34 (both test-like and train-like improve). At 0.03-0.055 p
   c04->c05 ~0.031, c07->c08 0.055, c08->c09 0.004. The proxy ranks correctly but its magnitude is unreliable for this
   change. A likely reason: c09's gain sits on masked-observed values, whose co-missingness and spike structure differs
   from the truly-missing test values.
+
+## Round 10: c10 blend, NATMISS proxy, natural-missingness indicators
+- c10 = average of c08 + c09 pipelines: proxy 21.21 (between c08 22.21 and c09 20.87) -> not recommended (HOLD).
+- NATMISS proxy (held-out test rows that also have a genuinely missing value elsewhere):
+  c06 30.01, c07 29.88, c08 28.57, c09 27.63. It credits c07->c08 (-1.30) more than c08->c09 (-0.95), consistent with
+  the public deltas (-0.022 / -0.0055) up to public noise (~+-0.005).
+- Natural-missingness indicators for the other columns: single imputer 21.80 / 30.23 (count: 21.69 / 29.57) vs
+  21.40 / 29.05 without; c09 + indicators 21.17 / 28.65 vs c09 20.87 / 27.63 -> worse (overfits the few naturally-incomplete rows). Rejected.
+**Best: c09 (public 3.20392).**

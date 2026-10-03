@@ -24,7 +24,7 @@ def dev_member(params, seed=11, copies=1):
         return lambda G: m.predict(add_dev(G, tab, col).drop(columns=[col]))
     return fit
 
-grp = sys.argv[1]
+grp = sys.argv[1] if __name__ == "__main__" else ""
 DEEP = dict(IMP_PARAMS, num_leaves=63, min_child_samples=5, n_estimators=1000, learning_rate=0.02)
 SLOW = dict(IMP_PARAMS, n_estimators=1500, learning_rate=0.01)
 if grp == "a":
@@ -83,3 +83,7 @@ if grp == "f":
 if grp == "g":
     L = [["building", "hour"], ["building"]]
     evaluate([multi_member(IMP_PARAMS, L, 11, 5), multi_member(DEEP, L, 12, 5), multi_member(SLOW, L, 13, 5)], 2.0, label="c09 cfg: trio w2 aug5 dev(bh)+(b)")
+if grp == "h":
+    L = [["building", "hour"], ["building"]]
+    evaluate([lgb_member(IMP_PARAMS, 11, 5), lgb_member(DEEP, 12, 5), lgb_member(SLOW, 13, 5),
+              multi_member(IMP_PARAMS, L, 11, 5), multi_member(DEEP, L, 12, 5), multi_member(SLOW, L, 13, 5)], 2.0, label="c10 cfg: c08 trio + c09 trio")

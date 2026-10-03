@@ -53,9 +53,12 @@ def evaluate(members, test_w=1.0, train_w=1.0, use_dom=True, label="", folds=5, 
                 p = np.mean([f(G) for f in preds], 0)
                 s = H.building_id.map(SL[col]).fillna(np.mean(list(SL[col].values()))).to_numpy()
                 E[(pool, col)].append((s * (p - hold.loc[ok, col].to_numpy())) ** 2)
-    res = {pool: sum(np.mean(np.concatenate(E[(pool, c)])) for c in ALL) for pool in ["test", "train"]}
+                if pool == "test":  # rows that ALSO have a genuinely missing value elsewhere (like real missing rows)
+                    nat = hold[ok][[c for c in ALL if c != col]].isna().any(axis=1).to_numpy()
+                    E.setdefault(("natmiss", col), []).append(((s * (p - hold.loc[ok, col].to_numpy())) ** 2)[nat])
+    res = {pool: sum(np.mean(np.concatenate(E[(pool, c)])) for c in ALL) for pool in ["test", "train", "natmiss"]}
     per = {c: np.mean(np.concatenate(E[("test", c)])) for c in ALL}
     if verbose:
-        print(f"{label:42s} TEST proxy {res['test']:.3f} | train {res['train']:.3f} | test per-feature "
+        print(f"{label:42s} TEST proxy {res['test']:.3f} | NATMISS {res['natmiss']:.3f} | train {res['train']:.3f} | test per-feature "
               + " ".join(f"{c[:4]} {v:.2f}" for c, v in per.items()), flush=True)
     return res
