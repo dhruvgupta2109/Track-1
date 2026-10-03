@@ -176,3 +176,9 @@ The remaining uncertainty is test-only behaviour (spike magnitudes beyond the tr
   Train-distribution CV with dom=0 (n/a for test): masked -0.004, non-spike -0.015 (4/4), spike +0.20.
   Expected public effect from the imputation errors: about -0.027 (3.337 -> ~3.31).
   Imputer tuning on test rows: default near-optimal (deeper -0.1/24.0; mask augmentation essential, none = 25.4).
+
+## Public LB: domain-aware imputers (huge transfer)
+- c04 3.33681 -> c05 3.25549 -> c06 3.23804 -> **c07 3.23149 (#1)**.
+- The public order c07 < c06 < c05 < c04 matches the held-out TEST-row imputation proxy exactly (23.57 < 23.65 < 24.06 < 26.7).
+  The proxy (energy-weighted imputation MSE on hidden observed test-row features) is label-free and validated by the LB.
+  Public gain per proxy unit is about 0.03-0.04 RMSE (bigger than the a-priori estimate). New objective: minimise the proxy.
