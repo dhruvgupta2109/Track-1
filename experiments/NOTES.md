@@ -182,3 +182,17 @@ The remaining uncertainty is test-only behaviour (spike magnitudes beyond the tr
 - The public order c07 < c06 < c05 < c04 matches the held-out TEST-row imputation proxy exactly (23.57 < 23.65 < 24.06 < 26.7).
   The proxy (energy-weighted imputation MSE on hidden observed test-row features) is label-free and validated by the LB.
   Public gain per proxy unit is about 0.03-0.04 RMSE (bigger than the a-priori estimate). New objective: minimise the proxy.
+
+## Round 8: proxy-driven imputer tuning (src/proxy.py: per-building slope-weighted test-row imputation MSE)
+Calibration: c04 25.85 (LB 3.337), c06 22.65 (LB 3.238), c07 22.61 (LB 3.231) -> ~0.031 public RMSE per proxy unit.
+| variant | test proxy | train-like |
+|---|---|---|
+| trio, test weight x3 / x4 / x6 / x10 | 22.64 / 22.68 / 22.86 / 23.07 | 12.64 / 12.78 / 12.98 / 13.37 |
+| trio, test-only rows | 24.78 | 19.66 |
+| trio w2, mask augmentation x2 / x3 / x5 / x8 | 22.44 / 22.33 / **22.21** / 22.21 | 12.53 / 12.55 / 12.56 / 12.62 |
+| 3 seeds x trio (9 members) w2, aug x1 / x5 | 22.47 / 22.18 | 12.52 / 12.57 |
+| trio w1, aug x5 | 22.35 | 12.48 |
+| trio + ExtraTrees / + heavily regularised LGB | 23.27 / 22.61 | — |
+-> **c08 = trio, test x2, aug x5** (proxy 22.21, projected LB ~3.22). Augmentation saturates at x5; extra members
+   are worth ~0.001 public for 3x model size (not packaged).
+Proxy breakdown at c08: occupancy 9.2 + prev 9.9 + temperature 3.0 + humidity 0.07 -> the floor is unpredictable spikes in missing features.
