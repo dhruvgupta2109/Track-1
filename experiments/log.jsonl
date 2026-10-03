@@ -103,3 +103,4 @@
 {"name": "LB_c14_prevoff085", "public_rmse": 3.18808}
 {"name": "LB_c16_prev06_occ_selfmask", "public_rmse": 3.18618}
 {"name": "LB_c17_mnar_eb", "public_rmse": 3.18775}
+{"name": "LB_c19_occ_energy_blend", "public_rmse": 3.18380, "submission_id": 2284, "submitted_at_user_report": "2026-10-03 23:05 Asia/Singapore", "source": "user reported portal score", "csv_sha256": "db7a2d0d523b00d01222576ef4c9559384418f550c1b477f6e48f97e3ea0ab78"}

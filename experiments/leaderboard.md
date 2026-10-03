@@ -15,6 +15,7 @@
 | 2026-10-03 20:48 | c14_prevoff085 | submissions/c14_prevoff085.csv (sha256 1286ddaeb2) | — | 3.18808 | 1 | flat prev offset 0.85: -0.0013 vs c12 |
 | 2026-10-03 20:48 | c16_prev06_occ_selfmask | submissions/c16_prev06_occ_selfmask.csv (sha256 7ae6cbca99) | — | **3.18618** | **1** | c12 + occupancy self-masking offsets: -0.0032 vs c12 |
 | 2026-10-03 21:21 | c17_mnar_eb | submissions/c17_mnar_eb.csv (sha256 05cb6f912c) | train-only MNAR, EB-shrunk (pre-registered) | 3.18775 | 2 (behind own c16) | principled replacement for c12-c16 offsets; +0.0016 vs c16 = within public noise |
+| 2026-10-03 23:05 | c19_occ_energy_blend | submissions/c19_occ_energy_blend.csv (sha256 db7a2d0d52) | feature proxy 20.7249 | **3.18380** | 4 -> 4 | #2284, scored; user-reported portal result, CSV hash verified locally |
 
 c18_private_safe was **not submitted**. Its prediction CSV is byte-identical to c17 (sha256 prefix 05cb6f912c),
 so no separate public result is recorded. Its input recovery/fallback behavior has no measured private score.

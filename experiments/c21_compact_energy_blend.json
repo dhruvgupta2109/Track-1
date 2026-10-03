@@ -1,0 +1,11 @@
+{
+  "candidate": "c21_compact_energy_blend",
+  "rows": 3000,
+  "rms_change_from_c19": 0.16472442254826675,
+  "max_change_from_c19": 0.7779568239897401,
+  "csv_sha256": "53b9f8477b717fd51ec72fb90666e08e1b740cd96b1006c93049bd0ce8abc7aa",
+  "fresh_kernel_scenarios_passed": 5,
+  "clean_platform_environment_exact_match": true,
+  "clean_kernel_interpreter_verified": true,
+  "public_score": null
+}

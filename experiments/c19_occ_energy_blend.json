@@ -1,7 +1,8 @@
 {
   "candidate": "c19_occ_energy_blend",
   "role": "experimental",
-  "separate_public_score": null,
+  "separate_public_score": 3.18380,
+  "public_score_source": "user reported submission #2284, 2026-10-03 23:05 Asia/Singapore; matching SHA prefix db7a2d0d52",
   "rows": 3000,
   "changed_rows": 206,
   "occupancy_missing_rows": 206,

@@ -1,0 +1,19 @@
+{
+  "candidate": "c22_distilled_compact",
+  "source_candidate": "c21_compact_energy_blend",
+  "source_artifact_sha256": "aa9e1a2a3ff813f9b8c631e04578530e349cc21d8cdac4ac6153f1b69f8e5e2d",
+  "files": {
+    "model.pkl": "aaa4e41ea7b2973de4a7b34a8a2aa41f450a68b214abee1cce899c7958c849d8",
+    "prediction_notebook.ipynb": "8d8661da12f362fb412cf70d9309fed29e1fe3040cc902ef7ac38985d0410abc",
+    "requirements.txt": "cf90bbee3df2042629cf519c85680eedcdbeeec34a6b0ad936674241ca738d02"
+  },
+  "submission_sha256": "e7b23505d1c8ea31dde978116c6ace69ac903f996a700e31c9b2a3e5abd0f9e7",
+  "prediction_rows": 3000,
+  "fresh_kernel_scenarios": [
+    "platform",
+    "template_default",
+    "stress",
+    "dropcol",
+    "onerow"
+  ]
+}

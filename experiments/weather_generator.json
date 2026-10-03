@@ -1,0 +1,155 @@
+{
+  "test": {
+    "blend_weather1": {
+      "humidity": 0.08450445376268659,
+      "occupancy": 8.201402546767921,
+      "previous_usage": 9.877544707039013,
+      "temperature": 3.816904885682069,
+      "total": 21.980356593251692
+    },
+    "blend_weather4": {
+      "humidity": 0.06806097615926798,
+      "occupancy": 8.201402546767921,
+      "previous_usage": 9.877544707039013,
+      "temperature": 3.09672515607748,
+      "total": 21.243733386043683
+    },
+    "blend_weather8": {
+      "humidity": 0.06810417839071027,
+      "occupancy": 8.201402546767921,
+      "previous_usage": 9.877544707039013,
+      "temperature": 3.0824274938492193,
+      "total": 21.229478926046863
+    },
+    "c19": {
+      "humidity": 0.06945036742330246,
+      "occupancy": 8.201402546767921,
+      "previous_usage": 9.877544707039013,
+      "temperature": 2.5765243216035136,
+      "total": 20.724921942833753
+    },
+    "weather1": {
+      "humidity": 0.13126194777533196,
+      "occupancy": 8.201402546767921,
+      "previous_usage": 9.877544707039013,
+      "temperature": 7.209024368431936,
+      "total": 25.419233570014203
+    },
+    "weather4": {
+      "humidity": 0.06981860816283829,
+      "occupancy": 8.201402546767921,
+      "previous_usage": 9.877544707039013,
+      "temperature": 4.509960423126108,
+      "total": 22.65872628509588
+    },
+    "weather8": {
+      "humidity": 0.06988676276343263,
+      "occupancy": 8.201402546767921,
+      "previous_usage": 9.877544707039013,
+      "temperature": 4.472777602203006,
+      "total": 22.621611618773375
+    }
+  },
+  "natmiss": {
+    "blend_weather1": {
+      "humidity": 0.11670378181377886,
+      "occupancy": 9.676546062487681,
+      "previous_usage": 13.453253375826934,
+      "temperature": 4.683223329487307,
+      "total": 27.9297265496157
+    },
+    "blend_weather4": {
+      "humidity": 0.10439037168969827,
+      "occupancy": 9.676546062487681,
+      "previous_usage": 13.453253375826934,
+      "temperature": 4.083547644670944,
+      "total": 27.317737454675257
+    },
+    "blend_weather8": {
+      "humidity": 0.10420245935643041,
+      "occupancy": 9.676546062487681,
+      "previous_usage": 13.453253375826934,
+      "temperature": 4.050801768598841,
+      "total": 27.284803666269887
+    },
+    "c19": {
+      "humidity": 0.1037887133308567,
+      "occupancy": 9.676546062487681,
+      "previous_usage": 13.453253375826934,
+      "temperature": 3.4655076441896346,
+      "total": 26.699095795835106
+    },
+    "weather1": {
+      "humidity": 0.15887531630840668,
+      "occupancy": 9.676546062487681,
+      "previous_usage": 13.453253375826934,
+      "temperature": 7.9818700591491165,
+      "total": 31.27054481377214
+    },
+    "weather4": {
+      "humidity": 0.10906317099265246,
+      "occupancy": 9.676546062487681,
+      "previous_usage": 13.453253375826934,
+      "temperature": 5.6775844262576625,
+      "total": 28.916447035564932
+    },
+    "weather8": {
+      "humidity": 0.10867409606649225,
+      "occupancy": 9.676546062487681,
+      "previous_usage": 13.453253375826934,
+      "temperature": 5.5715084166040585,
+      "total": 28.809981950985165
+    }
+  },
+  "train": {
+    "blend_weather1": {
+      "humidity": 0.06626776569409942,
+      "occupancy": 4.1361911966769425,
+      "previous_usage": 5.979741778410178,
+      "temperature": 2.2412399175320923,
+      "total": 12.42344065831331
+    },
+    "blend_weather4": {
+      "humidity": 0.0625304717404002,
+      "occupancy": 4.1361911966769425,
+      "previous_usage": 5.979741778410178,
+      "temperature": 2.1159000161156274,
+      "total": 12.29436346294315
+    },
+    "blend_weather8": {
+      "humidity": 0.062442361902568605,
+      "occupancy": 4.1361911966769425,
+      "previous_usage": 5.979741778410178,
+      "temperature": 2.1137387530864484,
+      "total": 12.292114090076137
+    },
+    "c19": {
+      "humidity": 0.06402100955288444,
+      "occupancy": 4.1361911966769425,
+      "previous_usage": 5.979741778410178,
+      "temperature": 2.020305149418929,
+      "total": 12.200259134058934
+    },
+    "weather1": {
+      "humidity": 0.07667602929674251,
+      "occupancy": 4.1361911966769425,
+      "previous_usage": 5.979741778410178,
+      "temperature": 3.006906380543124,
+      "total": 13.199515384926986
+    },
+    "weather4": {
+      "humidity": 0.06274904211070792,
+      "occupancy": 4.1361911966769425,
+      "previous_usage": 5.979741778410178,
+      "temperature": 2.5275836064044044,
+      "total": 12.706265623602233
+    },
+    "weather8": {
+      "humidity": 0.06242898858491376,
+      "occupancy": 4.1361911966769425,
+      "previous_usage": 5.979741778410178,
+      "temperature": 2.51857571682487,
+      "total": 12.696937680496905
+    }
+  }
+}

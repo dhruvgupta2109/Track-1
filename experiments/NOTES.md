@@ -393,12 +393,41 @@ not pre-registered. Energy coefficients, other imputers and train-estimated MNAR
 
 Cached held-out feature proxy for this exact occupancy-only choice: test 20.8086 -> 20.7249, naturally-incomplete
 26.8569 -> 26.6991, train 12.2480 -> 12.2003. This small proxy improvement does not establish a public RMSE gain.
-c19 has no public score and is not the selected final package unless subsequent evidence justifies that decision.
+At creation c19 had no public score. The user subsequently reported **3.18380**, submission #2284 at 23:05 on
+3 October, rank 4 -> 4, matching SHA prefix `db7a2d0d52`; this is now the best recorded public score.
 
 `submissions/c19_occ_energy_blend.csv`: 3000 finite predictions in sample-submission ID order. All 206 occupancy-missing
 rows change; other rows retain their predictions. RMS change on affected rows 0.2503, maximum absolute change 1.7882.
 Package `package/c19_occ_energy_blend/` passes all five fresh-kernel scenarios. Metadata/measurements are in
 `experiments/c19_occ_energy_blend.json`; existing packages/CSVs are preserved. No portal upload was made.
+
+## Round 17: broad research, generator hypotheses and foundation-model distillation
+
+Full methodology, primary research links, rejected trials and reproduction: [`RESEARCH_ROUND17.md`](RESEARCH_ROUND17.md).
+
+- Tested TabICLv2 locally on GPU. Direct energy prediction was worse, and residual prediction negligible. Its
+  occupancy/previous gap fills were useful: fixed half blend's 5-fold test-feature proxy **20.7249 -> 19.1328**,
+  naturally incomplete **26.6991 -> 25.3363**, train **12.2003 -> 11.6182**. Test paired MSE delta -1.5921,
+  row-bootstrap interval [-1.9838,-1.1976], with gains in all five folds. These are not public RMSE improvements.
+- Explicit incomplete-data Gaussian generator mixtures, 1/8/16 components: rejected; best half blend proxy
+  22.4889. Focused sinusoidal weather mixtures, 1/4/8 components: rejected; best half blend 21.2295.
+- Fitted weather fingerprints reveal smooth daily/annual temperature and humidity dependence on temperature
+  around -1.78. They are approximate relationships, not recovered source code or random innovations.
+- A 77-column compact energy formula, half blended with 301-column V5, improves matched complete-row 5-fold x3
+  RMSE **2.994955 -> 2.988815**. Paired MSE delta -0.03674, row-bootstrap interval [-0.05693,-0.01639].
+  Shapes were informed by training-profile inspection; selection uncertainty is outside these intervals.
+- Cross-fitted teacher distillation lost most of the gain. A second student learned full outer-fold teacher
+  predictions on jittered, masked, unlabeled training queries. Fixed half student/c19 blend improves test proxy
+  **20.7249 -> 20.0802** (delta -0.6447, interval [-0.9606,-0.3255]), all five folds. Naturally incomplete
+  slice **26.6991 -> 26.1447** has uncertain gain; train **12.2003 -> 11.9570**.
+- **c22_distilled_compact** combines the student with compact energy. Five fresh-kernel scenarios pass; all 3000
+  predictions match exactly in the image-only environment, actual interpreter verified, 2.9 s. Seven new-model
+  input-contract tests pass. Artifact needs only image libraries at inference.
+- **c23_tabicl_compact** combines the full foundation blend with compact energy, retaining stronger component
+  validation. Its 3000 predictions pass finite/ID/order/chunk checks. Torch and TabICL are absent from the platform
+  image, so this is a public CSV experiment with no compatible private package. c20/c21 isolate its components.
+- No new public scores or portal execution have been observed. Components were validated separately; combined
+  public/private RMSE is unmeasured. MNAR parameters remain train-estimated and frozen. Earlier artifacts are preserved.
 
 ## Round 15: audit of teammate's c18 (public ~3.12): c16 + 1.0 x (c16 - MAR baseline) on the 231 rows with 2+ missing
 - Files: ../Track1_BEST_c18_3.12 (CSV sha256[:10] 50202f74e9). Pickle loaded with an allow-list unpickler: only numpy

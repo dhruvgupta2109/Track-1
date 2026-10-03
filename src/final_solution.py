@@ -10,7 +10,7 @@ from common import ROOT
 
 FINAL_CANDIDATE = "c18_private_safe"
 STATISTICAL_CANDIDATE = "c17_mnar_eb"
-BEST_PUBLIC_CANDIDATE = "c16_prev06_occ_selfmask"
+BEST_PUBLIC_CANDIDATE = "c19_occ_energy_blend"
 
 
 def final_summary():

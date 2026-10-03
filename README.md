@@ -1,11 +1,29 @@
 # MLDA Datathon 2026 - Track 1: Smart Campus energy forecasting
 
-## Final package: c18_private_safe
+## New research candidates (4 October)
+
+Confirmed best public result: **c19, RMSE 3.18380**, submission #2284, reported by the user; matching CSV SHA prefix `db7a2d0d52`.
+
+| Candidate | Change | Local evidence | Delivery |
+|---|---|---|---|
+| [c23_tabicl_compact](submissions/c23_tabicl_compact.csv) | TabICL foundation gap-fill blend + compact energy blend | Feature proxy 20.725 -> 19.133; complete energy CV 2.9950 -> 2.9888 | Public CSV experiment; requires Torch/TabICL to reproduce |
+| [c22_distilled_compact](submissions/c22_distilled_compact.csv) | Distilled foundation gap-fill blend + same energy blend | Feature proxy 20.725 -> 20.080; same complete energy CV | Platform-compatible [package](package/c22_distilled_compact/) |
+
+Both candidates are **unscored**. Component checks are separate: they do not establish a combined public/private RMSE.
+c22 passed all five fresh-kernel scenarios, then matched its CSV exactly in the image-pinned environment (2.9 s), with
+the actual notebook interpreter verified. c23 passed finite/ID-order and shuffled/chunked equivalence checks, but has no
+image-compatible inference package. Prior packages and CSVs are preserved.
+
+Research, rejected generator models, uncertainty and reproduction: [Round 17](experiments/RESEARCH_ROUND17.md).
+The report and presentation below describe the reviewed c18/c17 package from the preceding round; they have not been
+rewritten around an unscored research candidate.
+
+## Previously reviewed package: c18_private_safe
 
 **c18 preserves c17's statistical model and supplied-test predictions, and improves private-input handling.**
 Its CSV is byte-identical to c17, whose recorded public RMSE is **3.18775**. c18 has no separate public or private score.
-The best observed public result remains **c16: 3.18618**. We retain c17's train-estimated correction rather than choosing
-offset sizes from public results; the 0.00157 public difference does not establish a private-test advantage.
+The latest best observed public result is **c19: 3.18380**. c18 remains the previously reviewed c17 implementation;
+new research candidates above retain its train-estimated missing-value corrections.
 
 The pipeline:
 
@@ -24,7 +42,7 @@ rows. The complete-row energy-model CV RMSE is **2.998** (V5, paired 5-fold x4),
 a full c17 private-like CV score. Missing-value correction has uncertain cross-fitted benefit (-0.078 MSE, SE 0.126).
 Transferring the public feature distribution and train-estimated missingness mechanism to private data remains an assumption.
 
-## Latest improvement checks
+## Previous-round improvement checks
 
 Two new five-fold checks held out feature values without using test energy labels:
 
@@ -48,7 +66,8 @@ on the first 400 test rows. Known building IDs now recover the same predictions.
 | `package/c18_private_safe/` | Final inference notebook, model, image-pinned requirements and hash manifest |
 | `submissions/c18_private_safe.csv` | 3000 `id,prediction` rows; byte-identical to c17 |
 | `package/c17_mnar_eb/` | Statistical-model fallback package, public 3.18775 |
-| `package/c16_prev06_occ_selfmask/` | Best observed public variant; public-selected offsets |
+| `package/c16_prev06_occ_selfmask/` | Earlier best public variant; public-selected offsets |
+| `package/c19_occ_energy_blend/` | Current confirmed best public package, 3.18380 |
 | `notebooks/track1_analysis_presentation.ipynb` | Executed analysis, final model explanation and full raw-data rebuild |
 | `reports/track1_technical_report.pdf` | Visually checked, one-page A4 report describing c18/c17 |
 | `docs/track1_qa.md` | Judge Q&A with assumptions and evidence boundaries |

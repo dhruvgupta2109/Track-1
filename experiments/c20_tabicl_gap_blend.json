@@ -1,0 +1,24 @@
+{
+  "candidate": "c20_tabicl_gap_blend",
+  "source_candidate": "c19_occ_energy_blend",
+  "blend": 0.5,
+  "features": [
+    "occupancy",
+    "previous_usage"
+  ],
+  "rows": 3000,
+  "changed_rows": 366,
+  "source_artifact_sha256": "7f7a1b120d1670f2183cd6b2b2e6575873cc6728d56e7961142f031d31019fa8",
+  "csv_sha256": "93128ccc4a5a89fea0baa86374cbe9fd387865b74faaa20ea87f65b88710b7a6",
+  "tabicl": "2.2.0",
+  "torch": "2.14.0+cu130",
+  "checkpoint_sha256": "0db9cb538f114e79026bf08f45f41ad8dd7ad2de2aaca9a5ca8cd3bd9748ae7a",
+  "shuffled_idless_max_delta": 2.842170943040401e-14,
+  "chunked_max_delta": 4.263256414560601e-14,
+  "rms_change": 0.21750838682263746,
+  "changed_rms": 0.6227246999696937,
+  "max_change": 4.280055713009169,
+  "validation": "5-fold feature holdout; feature selection exploratory; fixed 0.5 blend",
+  "private_package_compatible": false,
+  "package_limitation": "Platform image does not include Torch or TabICL; CSV is public experimental only"
+}

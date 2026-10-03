@@ -1,0 +1,71 @@
+{
+  "test": {
+    "blend_student": {
+      "humidity": 0.06683374056525021,
+      "occupancy": 7.9688113777212966,
+      "previous_usage": 8.441963023844334,
+      "temperature": 2.194647247511416,
+      "total": 18.6722553896423
+    },
+    "c19": {
+      "humidity": 0.06683374056525021,
+      "occupancy": 8.275891326957668,
+      "previous_usage": 8.80884201888802,
+      "temperature": 2.194647247511416,
+      "total": 19.346214333922354
+    },
+    "student": {
+      "humidity": 0.06683374056525021,
+      "occupancy": 8.14433235289981,
+      "previous_usage": 8.573822750048485,
+      "temperature": 2.194647247511416,
+      "total": 18.97963609102496
+    }
+  },
+  "natmiss": {
+    "blend_student": {
+      "humidity": 0.11353390344023782,
+      "occupancy": 8.225868133720681,
+      "previous_usage": 14.43724166045416,
+      "temperature": 2.9275898226579713,
+      "total": 25.70423352027305
+    },
+    "c19": {
+      "humidity": 0.11353390344023782,
+      "occupancy": 7.805198159298404,
+      "previous_usage": 14.373028622440216,
+      "temperature": 2.9275898226579713,
+      "total": 25.21935050783683
+    },
+    "student": {
+      "humidity": 0.11353390344023782,
+      "occupancy": 9.20492189328263,
+      "previous_usage": 15.273892472841954,
+      "temperature": 2.9275898226579713,
+      "total": 27.519938092222795
+    }
+  },
+  "train": {
+    "blend_student": {
+      "humidity": 0.06434918387799266,
+      "occupancy": 3.7538359836156823,
+      "previous_usage": 6.292433507774785,
+      "temperature": 1.9930284098456033,
+      "total": 12.103647085114064
+    },
+    "c19": {
+      "humidity": 0.06434918387799266,
+      "occupancy": 3.8361860773695677,
+      "previous_usage": 6.4783796173554995,
+      "temperature": 1.9930284098456033,
+      "total": 12.371943288448664
+    },
+    "student": {
+      "humidity": 0.06434918387799266,
+      "occupancy": 3.8419799418018896,
+      "previous_usage": 6.366812612710727,
+      "temperature": 1.9930284098456033,
+      "total": 12.266170148236213
+    }
+  }
+}

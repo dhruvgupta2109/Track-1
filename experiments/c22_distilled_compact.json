@@ -1,0 +1,13 @@
+{
+  "candidate": "c22_distilled_compact",
+  "rows": 3000,
+  "rms_change_from_c19": 0.25316426547192317,
+  "max_change_from_c19": 3.967168309396982,
+  "csv_sha256": "e7b23505d1c8ea31dde978116c6ace69ac903f996a700e31c9b2a3e5abd0f9e7",
+  "fresh_kernel_scenarios_passed": 5,
+  "clean_platform_environment_exact_match": true,
+  "clean_kernel_interpreter_verified": true,
+  "platform_only_runtime_seconds": 2.9,
+  "public_score": null,
+  "private_package_compatible": true
+}

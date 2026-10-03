@@ -1,0 +1,22 @@
+{
+  "n": 7537,
+  "v5_columns": 301,
+  "compact_columns": 77,
+  "metrics": {
+    "v5": {
+      "rmse": 2.994955054869589,
+      "delta_mse": 0.0,
+      "row_paired_se": 0.0
+    },
+    "compact": {
+      "rmse": 2.990467594669856,
+      "delta_mse": -0.026859345918388518,
+      "row_paired_se": 0.020658464904567263
+    },
+    "compact_rounded": {
+      "rmse": 2.9914212610050854,
+      "delta_mse": -0.021154619895645998,
+      "row_paired_se": 0.021065038181719845
+    }
+  }
+}
