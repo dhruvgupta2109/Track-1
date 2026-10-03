@@ -34,9 +34,11 @@ def _mask_aug(F, col, patterns, copies, seed):
 
 
 def fit_imputers(feature_rows, params=IMP_PARAMS, aug_patterns=None, aug_copies=0, cols=IMPUTE,
-                 row_weight=None, n_bags=1):
+                 row_weight=None, n_bags=1, domain=None):
     """row_weight: optional per-row weights for feature_rows. n_bags>1 -> list of seeded boosters (averaged)."""
     F0 = make_features(feature_rows)
+    if domain is not None:  # 0 = train distribution, 1 = test distribution (feature only, no target)
+        F0["dom"] = np.asarray(domain, dtype=float)
     w0 = np.ones(len(F0)) if row_weight is None else np.asarray(row_weight, float)
     boosters = {}
     for col in cols:
@@ -53,10 +55,12 @@ def fit_imputers(feature_rows, params=IMP_PARAMS, aug_patterns=None, aug_copies=
     return boosters
 
 
-def impute(df, boosters, cols=IMPUTE):
+def impute(df, boosters, cols=IMPUTE, domain=None):
     """Fill missing occupancy / previous_usage (computed from the ORIGINAL observed features)."""
     out = df.copy()
     F = make_features(df)
+    if domain is not None:
+        F["dom"] = float(domain)
     for col in cols:
         miss = F[col].isna().to_numpy()
         if miss.any():
