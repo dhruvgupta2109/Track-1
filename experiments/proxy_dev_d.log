@@ -1,0 +1,2 @@
+dev profile per domain                     TEST proxy 22.819 | train 12.470 | test per-feature occu 9.43 prev 10.44 temp 2.88 humi 0.07
+dev (bldg,hour)                            TEST proxy 21.682 | train 12.468 | test per-feature occu 8.81 prev 10.10 temp 2.70 humi 0.07

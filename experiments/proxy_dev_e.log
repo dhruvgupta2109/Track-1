@@ -1,0 +1,2 @@
+dev (type,hour)                            TEST proxy 21.912 | train 12.570 | test per-feature occu 8.86 prev 10.26 temp 2.73 humi 0.07
+dev (building)                             TEST proxy 21.733 | train 12.625 | test per-feature occu 8.65 prev 10.21 temp 2.80 humi 0.07

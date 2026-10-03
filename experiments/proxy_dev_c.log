@@ -1,0 +1,2 @@
+dev (bldg,hour,dow)                        TEST proxy 22.337 | train 13.010 | test per-feature occu 9.24 prev 10.25 temp 2.77 humi 0.07
+dev + z (bldg,hour,weekend)                TEST proxy 22.181 | train 12.657 | test per-feature occu 9.15 prev 10.16 temp 2.80 humi 0.07

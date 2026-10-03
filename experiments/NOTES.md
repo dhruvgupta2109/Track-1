@@ -198,3 +198,16 @@ Calibration: c04 25.85 (LB 3.337), c06 22.65 (LB 3.238), c07 22.61 (LB 3.231) ->
 Proxy breakdown at c08: occupancy 9.2 + prev 9.9 + temperature 3.0 + humidity 0.07 -> the floor is unpredictable spikes in missing features.
 
 - **c08 public 3.20937 (#1)**: -0.022 vs c07 for proxy -0.40 -> ~0.055 public per proxy unit (transfer is ~1.8x the calibration estimate).
+
+## Round 9: deviation features for imputers (c09)
+Spikes co-occur across features, so imputers get dev_c = x_c - profile mean (target-free lookup tables).
+| variant (single imputer, w2, aug2 unless noted) | test proxy | train-like |
+|---|---|---|
+| no dev (ref) | 22.65 | 12.78 |
+| dev (bldg,hour,weekend) | 21.99 | 12.55 |
+| dev (bldg,hour,dow) / + z-scores / profile per domain | 22.34 / 22.18 / 22.82 | |
+| dev (type,hour) / (building) / (bldg,hour) | 21.91 / 21.73 / 21.68 | |
+| dev (bldg,hour)+(bldg) | 21.40 | 12.37 |
+| trio w2 aug5 + dev (bldg,hour,weekend) | 21.29 | 12.27 |
+| **c09: trio w2 aug5 + dev (bldg,hour)+(bldg)** | **20.87** | **12.16** |
+c09 vs c08: proxy -1.34 (both test-like and train-like improve). At 0.03-0.055 public per unit, that projects to about -0.04 to -0.07.
