@@ -121,3 +121,18 @@ Stress curves (reports/figures/stress_curves.png): monotone, linear when observe
   About -0.007 RMSE overall, spike effect unknown -> not adopted.
 - Public-delta noise: the c04-c03 per-row MSE differences imply a public RMSE delta of -0.069 +- 0.04-0.055 (1 SE).
   The observed -0.032 is within 1 SE. The public LB cannot resolve differences < ~0.05.
+
+## Round 5: is there signal left beyond c04? (paired vs c04 config s00, 5x2; delta = cand - c04)
+- **Residual predictability** (2nd-level CV on c04 OOF residuals): LightGBM R2 -0.019 (clean) / -0.017 (masked),
+  ExtraTrees -0.011 / -0.011. The best shrinkage of any residual correction is 0. -> residual = noise on train-distribution rows.
+- Slope heterogeneity (ridge-shrunk interactions, scale 0.5): prev x type +0.003, prev x building +0.004, occ x weekend +0.0005,
+  occ x hourband +0.0005, prev x hourband +0.0007, prev x weekend +0.0006, temp hinges x type +0.0014, hum x type +0.0018,
+  temp x hourband +0.0008 (masked deltas). All null or worse -> shared slopes are correct.
+- Density ratio: train-vs-test classifier on feature values, AUC 0.70 (prev, occ, temp drive it). Spike rows get mean
+  weight 2.98 vs 0.92 -> independently confirms the spike-weighting scheme. Density-weighted fit: +0.018 masked (worse);
+  sqrt: +0.003; sqrt spike weights: +0.002. Ridge alpha 1 / 10: +0.002 / +0.004 (alpha 3 optimal).
+- Huber: dropped. Residuals are near-Gaussian (kurtosis 0.16), and lbfgs failed to converge on the unscaled design.
+- Ensembles: c04 + LGB(aug) energy model, residual corr 0.885; any weight > 0.05 worse on all metrics.
+- Imputer kinds: chained (occ -> prev) +0.004 masked / +0.008 shiftW; ExtraTrees +0.068; LGB+ET average +0.017.
+**Conclusion: residual signal is exhausted on train-distribution rows. c04 remains the champion.**
+The remaining uncertainty is test-only behaviour (spike magnitudes beyond the train range), which labels cannot validate.

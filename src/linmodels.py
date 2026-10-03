@@ -9,7 +9,7 @@ def all_patterns():
     return [tuple(c for c in NUMERIC if c in s) for r in range(5) for s in itertools.combinations(NUMERIC, r)]
 
 
-def fit_linear_artifact(df, y, alpha=3.0, spec=DEFAULT_SPEC, clip=(0.0, 400.0), weights=None):
+def fit_linear_artifact(df, y, alpha=3.0, spec=DEFAULT_SPEC, clip=(0.0, 400.0), weights=None, estimator="ridge", huber_eps=1.5):
     """One ridge per missingness pattern, each trained on all rows where its columns are observed.
     Stored as plain numpy (coef, intercept) -> no library-version deserialisation risk."""
     c = clean_input(df); y = np.asarray(y, dtype=float)
@@ -17,8 +17,13 @@ def fit_linear_artifact(df, y, alpha=3.0, spec=DEFAULT_SPEC, clip=(0.0, 400.0), 
     for p in all_patterns():
         need = [col for col in NUMERIC if col not in p]
         ok = c[need].notna().all(1).to_numpy()
-        m = Ridge(alpha=alpha).fit(linear_design(c[ok], drop=set(p), spec=spec), y[ok],
-                                   sample_weight=None if weights is None else weights[ok])
+        D = linear_design(c[ok], drop=set(p), spec=spec)
+        sw = None if weights is None else weights[ok]
+        if estimator == "huber":
+            from sklearn.linear_model import HuberRegressor
+            m = HuberRegressor(epsilon=huber_eps, alpha=alpha / ok.sum(), max_iter=2000).fit(D, y[ok], sample_weight=sw)
+        else:
+            m = Ridge(alpha=alpha).fit(D, y[ok], sample_weight=sw)
         coefs[p] = (m.coef_.astype(float), float(m.intercept_))
     return {"coefs": coefs, "spec": spec, "clip": clip}
 

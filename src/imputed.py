@@ -68,12 +68,14 @@ def impute(df, boosters, cols=IMPUTE):
 
 class ImputeLinear:
     def __init__(self, spec, alpha=3.0, extra_rows=None, cols=IMPUTE, blend=1.0, params=IMP_PARAMS,
-                 aug_patterns=None, aug_copies=0, both_missing_fallback=False):
+                 aug_patterns=None, aug_copies=0, both_missing_fallback=False, fit_weights=None, lin_kw=None):
         self.spec, self.alpha, self.extra, self.cols, self.blend, self.params = spec, alpha, extra_rows, cols, blend, params
         self.aug_patterns, self.aug_copies, self.fallback = aug_patterns, aug_copies, both_missing_fallback
+        self.fit_weights, self.lin_kw = fit_weights, (lin_kw or {})
 
     def fit(self, X, y):
-        self.art = fit_linear_artifact(X, y, self.alpha, self.spec)
+        w = None if self.fit_weights is None else np.asarray(self.fit_weights)[X.index.to_numpy()]
+        self.art = fit_linear_artifact(X, y, self.alpha, self.spec, weights=w, **self.lin_kw)
         rows = X if self.extra is None else pd.concat([X, self.extra[X.columns]], ignore_index=True)
         self.imp = fit_imputers(rows, self.params, self.aug_patterns, self.aug_copies, self.cols)
         return self

@@ -13,6 +13,7 @@ from common import ROOT, NUM, load, folds, test_mask_patterns  # noqa: E402
 TR, TE = load()
 Y = TR["energy_usage"].to_numpy()
 W = np.load(ROOT / "experiments" / "shift_w.npy")
+WD = np.load(ROOT / "experiments" / "density_w.npy") if (ROOT / "experiments" / "density_w.npy").exists() else None
 Z = pd.read_csv(ROOT / "experiments" / "train_feature_z.csv")  # target-free spike z-scores
 SPIKE_Z = Z[["previous_usage", "occupancy", "temperature"]].abs().max(axis=1).fillna(0).to_numpy()
 SPIKE = SPIKE_Z > 3
@@ -54,7 +55,7 @@ def paired(ref, cand, n_boot=2000, seed=0):
     a, am = load_oof(ref); b, bm = load_oof(cand)
     R = min(a.shape[0], b.shape[0])
     rows = {}
-    for lab, A, B, w in [("clean", a, b, None), ("masked", am, bm, None), ("shiftW", am, bm, W),
+    for lab, A, B, w in [("clean", a, b, None), ("masked", am, bm, None), ("shiftW", am, bm, W), ("densityW", am, bm, WD),
                          ("spike_masked", am, bm, SPIKE.astype(float)), ("nonspike_masked", am, bm, (~SPIKE).astype(float))]:
         d = np.array([_rm(Y - B[r], w) - _rm(Y - A[r], w) for r in range(R)])
         rows[lab] = dict(ref=np.mean([_rm(Y - A[r], w) for r in range(R)]), cand=np.mean([_rm(Y - B[r], w) for r in range(R)]),

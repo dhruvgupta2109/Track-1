@@ -120,6 +120,23 @@ def linear_design(c, drop=(), spec=DEFAULT_SPEC):
     for col in NUMERIC:
         if col not in drop:
             cols.append(G[spec["slopes"][col]] * c[col].to_numpy()[:, None])
+    # extra shrinkable interactions: (numeric col, group, scale); effective penalty alpha/scale^2
+    if spec.get("interactions"):
+        hr = c["hour"].to_numpy()
+        bands = np.stack([(hr <= 6), (hr >= 7) & (hr <= 11), (hr >= 12) & (hr <= 17), (hr >= 18)], 1).astype(float)
+        bands[np.isnan(hr)] = 0.25
+        we2 = np.concatenate([1 - we, we], 1)
+        GX = {**G, "hourband": bands, "weekend": we2}
+        for col, grp, scale in spec["interactions"]:
+            if col in drop:
+                continue
+            if col == "temp_hinge":
+                v = np.stack([np.maximum(c["temperature"].to_numpy() - k, 0) for k in (26.0, 28.0, 30.0)], 1)
+                if "temperature" in drop:
+                    continue
+                cols.append((GX[grp][:, :, None] * v[:, None, :]).reshape(n, -1) * scale)
+                continue
+            cols.append(GX[grp] * c[col].to_numpy()[:, None] * scale)
     if spec.get("season", True):
         m = c["month"].to_numpy()
         sc = np.stack([np.sin(2 * np.pi * m / 12), np.cos(2 * np.pi * m / 12)], 1)
