@@ -196,3 +196,5 @@ Calibration: c04 25.85 (LB 3.337), c06 22.65 (LB 3.238), c07 22.61 (LB 3.231) ->
 -> **c08 = trio, test x2, aug x5** (proxy 22.21, projected LB ~3.22). Augmentation saturates at x5; extra members
    are worth ~0.001 public for 3x model size (not packaged).
 Proxy breakdown at c08: occupancy 9.2 + prev 9.9 + temperature 3.0 + humidity 0.07 -> the floor is unpredictable spikes in missing features.
+
+- **c08 public 3.20937 (#1)**: -0.022 vs c07 for proxy -0.40 -> ~0.055 public per proxy unit (transfer is ~1.8x the calibration estimate).
